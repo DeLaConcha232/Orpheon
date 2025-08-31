@@ -14,7 +14,194 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      product_codes: {
+        Row: {
+          code_value: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_used: boolean | null
+          product_id: string | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code_value: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          product_id?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code_value?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          product_id?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_codes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_codes_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          points_value: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          points_value: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          points_value?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          points: number | null
+          qr_code: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          points?: number | null
+          qr_code?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          points?: number | null
+          qr_code?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      redeemed_rewards: {
+        Row: {
+          id: string
+          points_cost: number | null
+          redeemed_at: string | null
+          reward_type: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          points_cost?: number | null
+          redeemed_at?: string | null
+          reward_type?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          points_cost?: number | null
+          redeemed_at?: string | null
+          reward_type?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redeemed_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_redemptions: {
+        Row: {
+          code_id: string | null
+          id: string
+          points_earned: number | null
+          redeemed_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          code_id?: string | null
+          id?: string
+          points_earned?: number | null
+          redeemed_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          code_id?: string | null
+          id?: string
+          points_earned?: number | null
+          redeemed_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "product_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_redemptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
