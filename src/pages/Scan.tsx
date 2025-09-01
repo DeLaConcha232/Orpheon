@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useQRCamera } from '@/hooks/useQRCamera';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { CustomButton } from '@/components/ui/custom-button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { QrCode, Camera, Type, Sparkles } from 'lucide-react';
+import { QrCode, Camera, Type, Sparkles, X, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,7 +24,31 @@ export default function Scan() {
   const { user, loading } = useAuth();
   const [manualCode, setManualCode] = useState('');
   const [scanning, setScanning] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const { toast } = useToast();
+  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const { 
+    isScanning, 
+    error: cameraError, 
+    videoRef, 
+    canvasRef, 
+    startCamera, 
+    stopCamera, 
+    scanQRCode,
+    processImage 
+  } = useQRCamera();
+  
+  const { sendLocalNotification } = usePushNotifications();
+
+  useEffect(() => {
+    // Clean up on unmount
+    return () => {
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+      }
+    };
+  }, []);
 
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;
@@ -78,14 +104,22 @@ export default function Scan() {
         return;
       }
 
-      // Show success with confetti effect
+      // Show success with notification
       toast({
         title: "¡Código canjeado!",
         description: `Ganaste ${result.points_earned} puntos por ${result.product_name}`,
         variant: "default",
       });
 
+      // Send local notification
+      sendLocalNotification(
+        "¡Puntos ganados!",
+        `Ganaste ${result.points_earned} puntos por ${result.product_name}`
+      );
+
       setManualCode('');
+      setShowCamera(false);
+      stopCamera();
 
     } catch (error) {
       console.error('Code redemption error:', error);
@@ -96,6 +130,38 @@ export default function Scan() {
       });
     } finally {
       setScanning(false);
+    }
+  };
+
+  const handleStartCamera = async () => {
+    setShowCamera(true);
+    const dataUrl = await startCamera();
+    
+    if (dataUrl) {
+      // Process captured image (Capacitor)
+      const code = await processImage(dataUrl);
+      if (code) {
+        await handleScanCode(code);
+      }
+    } else {
+      // Start continuous scanning (web camera)
+      scanIntervalRef.current = setInterval(() => {
+        const code = scanQRCode();
+        if (code) {
+          if (scanIntervalRef.current) {
+            clearInterval(scanIntervalRef.current);
+          }
+          handleScanCode(code);
+        }
+      }, 500);
+    }
+  };
+
+  const handleStopCamera = () => {
+    setShowCamera(false);
+    stopCamera();
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
     }
   };
 
@@ -115,7 +181,7 @@ export default function Scan() {
       </motion.header>
 
       <div className="p-6 space-y-6">
-        {/* QR Scanner (Placeholder) */}
+        {/* QR Camera */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -129,20 +195,108 @@ export default function Scan() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-square bg-gradient-to-br from-secondary/10 to-accent/10 rounded-xl flex items-center justify-center mb-4 scanner-overlay">
-                <div className="text-center">
-                  <QrCode className="w-16 h-16 mx-auto mb-3 text-muted-foreground" />
-                  <p className="text-muted-foreground">Función de cámara próximamente</p>
-                </div>
-              </div>
-              <CustomButton
-                variant="outline"
-                className="w-full"
-                disabled
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Activar Cámara
-              </CustomButton>
+              <AnimatePresence>
+                {showCamera ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="space-y-4"
+                  >
+                    <div className="aspect-square bg-black rounded-xl overflow-hidden relative">
+                      <video
+                        ref={videoRef}
+                        className="w-full h-full object-cover"
+                        playsInline
+                        muted
+                      />
+                      <canvas ref={canvasRef} className="hidden" />
+                      
+                      {/* Scanning overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-48 h-48 border-2 border-secondary rounded-xl">
+                          <div className="w-full h-full relative">
+                            {/* Corner decorations */}
+                            <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-accent"></div>
+                            <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-accent"></div>
+                            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-accent"></div>
+                            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-accent"></div>
+                            
+                            {/* Scanning line */}
+                            <motion.div
+                              animate={{ y: [0, 192, 0] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                              className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Error message */}
+                      {cameraError && (
+                        <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+                          <div className="text-center text-white p-4">
+                            <p className="text-sm">{cameraError}</p>
+                            <CustomButton
+                              variant="outline"
+                              size="sm"
+                              onClick={handleStartCamera}
+                              className="mt-2"
+                            >
+                              <RefreshCw className="w-4 h-4 mr-2" />
+                              Reintentar
+                            </CustomButton>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <CustomButton
+                      variant="destructive"
+                      className="w-full"
+                      onClick={handleStopCamera}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cerrar Cámara
+                    </CustomButton>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-4"
+                  >
+                    <div className="aspect-square bg-gradient-to-br from-secondary/10 to-accent/10 rounded-xl flex items-center justify-center scanner-overlay">
+                      <div className="text-center">
+                        <QrCode className="w-16 h-16 mx-auto mb-3 text-muted-foreground" />
+                        <p className="text-muted-foreground">Toca para activar la cámara</p>
+                      </div>
+                    </div>
+                    <CustomButton
+                      variant="secondary"
+                      className="w-full"
+                      onClick={handleStartCamera}
+                      disabled={isScanning}
+                    >
+                      {isScanning ? (
+                        <>
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                          />
+                          Iniciando cámara...
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="w-4 h-4 mr-2" />
+                          Activar Cámara
+                        </>
+                      )}
+                    </CustomButton>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </CardContent>
           </Card>
         </motion.div>
