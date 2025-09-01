@@ -207,7 +207,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      redeem_product_code: {
+        Args: { code_value_input: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

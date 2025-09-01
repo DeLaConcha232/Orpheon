@@ -10,6 +10,14 @@ import { QrCode, Camera, Type, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface RedemptionResponse {
+  success: boolean;
+  error?: string;
+  points_earned?: number;
+  product_name?: string;
+  new_total_points?: number;
+}
+
 export default function Scan() {
   const { user, loading } = useAuth();
   const [manualCode, setManualCode] = useState('');
@@ -45,80 +53,42 @@ export default function Scan() {
     setScanning(true);
 
     try {
-      // Check if code exists and is not used
-      const { data: codeData, error: codeError } = await supabase
-        .from('product_codes')
-        .select('*, products(name, points_value)')
-        .eq('code_value', code.trim().toUpperCase())
-        .eq('is_used', false)
-        .single();
+      // Use the secure redeem_product_code function
+      const { data, error } = await supabase.rpc('redeem_product_code', {
+        code_value_input: code.trim().toUpperCase()
+      });
 
-      if (codeError || !codeData) {
-        toast({
-          title: "Código inválido",
-          description: "El código no existe o ya fue utilizado",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Mark code as used and assign to user
-      const { error: updateError } = await supabase
-        .from('product_codes')
-        .update({
-          is_used: true,
-          used_by: user.id,
-          used_at: new Date().toISOString()
-        })
-        .eq('id', codeData.id);
-
-      if (updateError) {
+      if (error) {
         toast({
           title: "Error",
-          description: "No se pudo procesar el código",
+          description: "Ocurrió un error al procesar el código",
           variant: "destructive",
         });
         return;
       }
 
-      // Add redemption record
-      const { error: redemptionError } = await supabase
-        .from('user_redemptions')
-        .insert({
-          user_id: user.id,
-          code_id: codeData.id,
-          points_earned: codeData.products.points_value
+      const result = data as unknown as RedemptionResponse;
+
+      if (!result.success) {
+        toast({
+          title: "Código inválido",
+          description: result.error || "Código inválido",
+          variant: "destructive",
         });
-
-      if (redemptionError) {
-        console.error('Redemption error:', redemptionError);
+        return;
       }
 
-      // Update user points
-      const { error: pointsError } = await supabase
-        .from('profiles')
-        .update({
-          points: (await supabase
-            .from('profiles')
-            .select('points')
-            .eq('id', user.id)
-            .single()).data?.points + codeData.products.points_value || codeData.products.points_value
-        })
-        .eq('id', user.id);
-
-      if (pointsError) {
-        console.error('Points update error:', pointsError);
-      }
-
+      // Show success with confetti effect
       toast({
         title: "¡Código canjeado!",
-        description: `Ganaste ${codeData.products.points_value} puntos por ${codeData.products.name}`,
+        description: `Ganaste ${result.points_earned} puntos por ${result.product_name}`,
         variant: "default",
       });
 
       setManualCode('');
 
     } catch (error) {
+      console.error('Code redemption error:', error);
       toast({
         title: "Error",
         description: "Ocurrió un error al procesar el código",
