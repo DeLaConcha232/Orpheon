@@ -8,6 +8,13 @@ const STATIC_ASSETS = [
   '/icon-512.png'
 ];
 
+// Security headers for cached responses
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'X-XSS-Protection': '1; mode=block'
+};
+
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -42,30 +49,77 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip sensitive endpoints
+  if (event.request.url.includes('/auth') || 
+      event.request.url.includes('/api/') ||
+      event.request.url.includes('token')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request).then((response) => {
-          // Don't cache non-successful responses
+        // If we have a cached response, add security headers
+        if (response) {
+          const secureResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: {
+              ...Object.fromEntries(response.headers.entries()),
+              ...SECURITY_HEADERS
+            }
+          });
+          return secureResponse;
+        }
+
+        // Fetch from network with enhanced security checks
+        return fetch(event.request).then((response) => {
+          // Don't cache non-successful responses or non-basic responses
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
 
-          // Clone response to cache
+          // Don't cache responses with sensitive headers
+          if (response.headers.get('authorization') || 
+              response.headers.get('cookie') ||
+              response.headers.get('set-cookie')) {
+            return response;
+          }
+
+          // Clone response to cache with security headers
           const responseToCache = response.clone();
+          const secureResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: {
+              ...Object.fromEntries(response.headers.entries()),
+              ...SECURITY_HEADERS
+            }
+          });
+
           caches.open(CACHE_NAME)
             .then((cache) => {
               cache.put(event.request, responseToCache);
             });
 
-          return response;
+          return secureResponse;
         });
       })
       .catch(() => {
         // Serve offline page for navigation requests
         if (event.request.mode === 'navigate') {
-          return caches.match('/');
+          return caches.match('/').then((response) => {
+            if (response) {
+              return new Response(response.body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: {
+                  ...Object.fromEntries(response.headers.entries()),
+                  ...SECURITY_HEADERS
+                }
+              });
+            }
+          });
         }
       })
   );
@@ -92,7 +146,19 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
+  // Enhanced security - validate URL before opening
+  const targetUrl = event.notification.data?.url || '/';
+  
+  // Only allow relative URLs or URLs from our domain
+  if (targetUrl.startsWith('/') || targetUrl.startsWith(self.location.origin)) {
+    event.waitUntil(
+      clients.openWindow(targetUrl)
+    );
+  } else {
+    // Log suspicious activity and open safe default
+    console.warn('Blocked suspicious notification URL:', targetUrl);
+    event.waitUntil(
+      clients.openWindow('/')
+    );
+  }
 });

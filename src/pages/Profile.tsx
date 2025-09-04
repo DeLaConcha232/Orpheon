@@ -9,9 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { SecurityMonitor } from '@/components/security/SecurityMonitor';
 
 interface UserProfile {
   id: string;
@@ -143,6 +145,20 @@ export default function Profile() {
       </motion.header>
 
       <div className="p-6 space-y-6">
+        {/* Profile Tabs */}
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Perfil
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Seguridad
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile" className="space-y-6 mt-6">
         {/* Profile Information */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -274,6 +290,17 @@ export default function Profile() {
             Cerrar Sesión
           </CustomButton>
         </motion.section>
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-6 mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <SecurityMonitor />
+          </motion.div>
+        </TabsContent>
+        </Tabs>
       </div>
 
       <BottomNav />

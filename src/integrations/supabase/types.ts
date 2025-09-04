@@ -163,6 +163,36 @@ export type Database = {
           },
         ]
       }
+      redemption_attempts: {
+        Row: {
+          attempt_type: string
+          code_value: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempt_type: string
+          code_value: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempt_type?: string
+          code_value?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_redemptions: {
         Row: {
           code_id: string | null
@@ -207,6 +237,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_redemption_rate_limit: {
+        Args: { user_id_input: string }
+        Returns: boolean
+      }
+      detect_suspicious_activity: {
+        Args: { user_id_input: string }
+        Returns: boolean
+      }
       redeem_product_code: {
         Args: { code_value_input: string }
         Returns: Json

@@ -19,8 +19,53 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, resetPassword } = useAuth();
 
+  // Enhanced input validation
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string): { valid: boolean; message?: string } => {
+    if (password.length < 8) {
+      return { valid: false, message: "La contraseña debe tener al menos 8 caracteres" };
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return { valid: false, message: "La contraseña debe contener al menos una letra minúscula" };
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return { valid: false, message: "La contraseña debe contener al menos una letra mayúscula" };
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return { valid: false, message: "La contraseña debe contener al menos un número" };
+    }
+    return { valid: true };
+  };
+
+  const validateFullName = (name: string): boolean => {
+    return name.trim().length >= 2 && /^[a-zA-ZÀ-ÿ\s]+$/.test(name.trim());
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Enhanced validation before submission
+    if (!validateEmail(email)) {
+      return; // Email validation will show error in real-time
+    }
+
+    if (mode === 'signup') {
+      if (!validateFullName(fullName)) {
+        return; // Name validation will show error in real-time
+      }
+
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        return; // Password validation will show error in real-time
+      }
+    } else if (mode === 'signin' && password.length === 0) {
+      return; // Password required for signin
+    }
+
     setLoading(true);
 
     try {
@@ -80,8 +125,15 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
-                  className="rounded-xl border-border/50 focus:border-secondary"
+                  className={`rounded-xl border-border/50 focus:border-secondary ${
+                    fullName && !validateFullName(fullName) ? 'border-red-500' : ''
+                  }`}
                 />
+                {fullName && !validateFullName(fullName) && (
+                  <p className="text-xs text-red-500">
+                    El nombre debe tener al menos 2 caracteres y solo contener letras
+                  </p>
+                )}
               </div>
             )}
             
@@ -94,8 +146,15 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="rounded-xl border-border/50 focus:border-secondary"
+                className={`rounded-xl border-border/50 focus:border-secondary ${
+                  email && !validateEmail(email) ? 'border-red-500' : ''
+                }`}
               />
+              {email && !validateEmail(email) && (
+                <p className="text-xs text-red-500">
+                  Por favor ingresa un email válido
+                </p>
+              )}
             </div>
 
             {mode !== 'forgot' && (
@@ -108,8 +167,34 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="rounded-xl border-border/50 focus:border-secondary"
+                  className={`rounded-xl border-border/50 focus:border-secondary ${
+                    mode === 'signup' && password && !validatePassword(password).valid ? 'border-red-500' : ''
+                  }`}
                 />
+                {mode === 'signup' && password && !validatePassword(password).valid && (
+                  <p className="text-xs text-red-500">
+                    {validatePassword(password).message}
+                  </p>
+                )}
+                {mode === 'signup' && (
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>La contraseña debe contener:</p>
+                    <ul className="list-disc list-inside space-y-0.5 ml-2">
+                      <li className={password.length >= 8 ? 'text-green-600' : ''}>
+                        Al menos 8 caracteres
+                      </li>
+                      <li className={/(?=.*[a-z])/.test(password) ? 'text-green-600' : ''}>
+                        Una letra minúscula
+                      </li>
+                      <li className={/(?=.*[A-Z])/.test(password) ? 'text-green-600' : ''}>
+                        Una letra mayúscula
+                      </li>
+                      <li className={/(?=.*\d)/.test(password) ? 'text-green-600' : ''}>
+                        Un número
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
 

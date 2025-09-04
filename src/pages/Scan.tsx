@@ -27,6 +27,7 @@ export default function Scan() {
   const [showCamera, setShowCamera] = useState(false);
   const { toast } = useToast();
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastRedemptionAttemptRef = useRef<number>(0);
   
   const { 
     isScanning, 
@@ -67,7 +68,10 @@ export default function Scan() {
   }
 
   const handleScanCode = async (code: string) => {
-    if (!code.trim()) {
+    // Enhanced input validation
+    const trimmedCode = code.trim().toUpperCase();
+    
+    if (!trimmedCode) {
       toast({
         title: "Error",
         description: "Por favor ingresa un código válido",
@@ -76,12 +80,33 @@ export default function Scan() {
       return;
     }
 
+    // Validate code format - must be at least 5 characters, alphanumeric and dashes only
+    if (trimmedCode.length < 5 || !/^[A-Z0-9\-]+$/.test(trimmedCode)) {
+      toast({
+        title: "Formato inválido",
+        description: "El código debe contener solo letras, números y guiones",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Prevent rapid-fire attempts
+    if (Date.now() - lastRedemptionAttemptRef.current < 2000) {
+      toast({
+        title: "Demasiado rápido",
+        description: "Espera un momento antes de intentar otro código",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    lastRedemptionAttemptRef.current = Date.now();
     setScanning(true);
 
     try {
       // Use the secure redeem_product_code function
       const { data, error } = await supabase.rpc('redeem_product_code', {
-        code_value_input: code.trim().toUpperCase()
+        code_value_input: trimmedCode
       });
 
       if (error) {
