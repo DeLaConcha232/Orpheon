@@ -100,6 +100,7 @@ export type Database = {
           created_at: string | null
           email: string
           full_name: string | null
+          hex_code: string
           id: string
           phone: string | null
           points: number | null
@@ -110,6 +111,7 @@ export type Database = {
           created_at?: string | null
           email: string
           full_name?: string | null
+          hex_code: string
           id: string
           phone?: string | null
           points?: number | null
@@ -120,6 +122,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           full_name?: string | null
+          hex_code?: string
           id?: string
           phone?: string | null
           points?: number | null
@@ -244,6 +247,10 @@ export type Database = {
       detect_suspicious_activity: {
         Args: { user_id_input: string }
         Returns: boolean
+      }
+      generate_hex_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       redeem_product_code: {
         Args: { code_value_input: string }
