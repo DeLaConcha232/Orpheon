@@ -46,6 +46,40 @@ export default function History() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('redeemed-rewards-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'redeemed_rewards',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Reward change detected:', payload);
+          
+          if (payload.eventType === 'UPDATE') {
+            setRewards(prev => prev.map(reward => 
+              reward.id === payload.new.id 
+                ? { ...reward, ...payload.new }
+                : reward
+            ));
+          } else if (payload.eventType === 'INSERT') {
+            setRewards(prev => [payload.new as Reward, ...prev]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchHistory = async () => {
     setLoadingData(true);
     
