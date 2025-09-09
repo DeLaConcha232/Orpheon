@@ -135,11 +135,37 @@ export default function History() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-success/20 text-success';
-      case 'pending': return 'bg-warning/20 text-warning';
-      case 'cancelled': return 'bg-destructive/20 text-destructive';
-      default: return 'bg-muted';
+    switch (status?.toLowerCase()) {
+      case 'completed':
+      case 'entregado':
+      case 'aceptado': 
+        return 'bg-success/20 text-success';
+      case 'pending':
+      case 'pendiente': 
+        return 'bg-warning/20 text-warning';
+      case 'cancelled':
+      case 'cancelado': 
+        return 'bg-destructive/20 text-destructive';
+      default: 
+        return 'bg-muted/20 text-muted-foreground';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+      case 'entregado': 
+        return 'Entregado';
+      case 'aceptado': 
+        return 'Aceptado';
+      case 'pending':
+      case 'pendiente': 
+        return 'Pendiente';
+      case 'cancelled':
+      case 'cancelado': 
+        return 'Cancelado';
+      default: 
+        return status || 'Desconocido';
     }
   };
 
@@ -266,8 +292,7 @@ export default function History() {
                             <h3 className="font-semibold text-foreground">{reward.reward_type}</h3>
                             <div className="flex items-center gap-2 mt-1">
                               <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(reward.status)}`}>
-                                {reward.status === 'completed' ? 'Completado' : 
-                                 reward.status === 'pending' ? 'Pendiente' : 'Cancelado'}
+                                {getStatusLabel(reward.status)}
                               </span>
                             </div>
                             <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
