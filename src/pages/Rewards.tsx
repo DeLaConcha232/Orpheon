@@ -13,49 +13,51 @@ interface UserProfile {
   points: number;
 }
 
-const rewardTiers = [
+interface RewardType {
+  id: string;
+  name: string;
+  description: string;
+  points_cost: number;
+  image_url?: string;
+  is_active: boolean;
+}
+
+const rewardTiers: RewardType[] = [
   {
-    id: 1,
-    title: 'Descuento 10%',
+    id: '1',
+    name: 'Descuento 10%',
     description: 'En tu próxima compra',
-    points: 100,
-    icon: ShoppingBag,
-    category: 'Descuento',
-    color: 'from-secondary/20 to-secondary/10'
+    points_cost: 100,
+    is_active: true
   },
   {
-    id: 2,
-    title: 'Producto Gratis',
+    id: '2',
+    name: 'Producto Gratis',
     description: 'Gomitas o galletas',
-    points: 200,
-    icon: Gift,
-    category: 'Producto',
-    color: 'from-accent/20 to-accent/10'
+    points_cost: 200,
+    is_active: true
   },
   {
-    id: 3,
-    title: 'Café Premium',
+    id: '3',
+    name: 'Café Premium',
     description: 'En café partner',
-    points: 150,
-    icon: Coffee,
-    category: 'Experiencia',
-    color: 'from-success/20 to-success/10'
+    points_cost: 150,
+    is_active: true
   },
   {
-    id: 4,
-    title: 'Pack Exclusivo',
+    id: '4',
+    name: 'Pack Exclusivo',
     description: 'Productos premium',
-    points: 500,
-    icon: Crown,
-    category: 'Premium',
-    color: 'from-amber-500/20 to-amber-400/10'
+    points_cost: 500,
+    is_active: true
   }
 ];
+
 
 export default function Rewards() {
   const { user, loading } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [redeeming, setRedeeming] = useState<number | null>(null);
+  const [redeeming, setRedeeming] = useState<string | null>(null);
 
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;
@@ -77,8 +79,9 @@ export default function Rewards() {
     setUserProfile(data);
   };
 
-  const handleRedeem = async (reward: typeof rewardTiers[0]) => {
-    if (!userProfile || userProfile.points < reward.points) return;
+
+  const handleRedeem = async (reward: RewardType) => {
+    if (!userProfile || userProfile.points < reward.points_cost) return;
     
     setRedeeming(reward.id);
     
@@ -88,15 +91,15 @@ export default function Rewards() {
         .from('redeemed_rewards')
         .insert({
           user_id: user!.id,
-          reward_type: reward.title,
-          points_cost: reward.points
+          reward_type: reward.name,
+          points_cost: reward.points_cost
         });
 
       // Update user points
       await supabase
         .from('profiles')
         .update({
-          points: userProfile.points - reward.points
+          points: userProfile.points - reward.points_cost
         })
         .eq('id', user!.id);
 
@@ -108,6 +111,24 @@ export default function Rewards() {
     } finally {
       setRedeeming(null);
     }
+  };
+
+  const getRewardIcon = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('descuento')) return ShoppingBag;
+    if (lowerName.includes('café') || lowerName.includes('coffee')) return Coffee;
+    if (lowerName.includes('premium') || lowerName.includes('exclusivo')) return Crown;
+    return Gift;
+  };
+
+  const getRewardColor = (index: number) => {
+    const colors = [
+      'from-secondary/20 to-secondary/10',
+      'from-accent/20 to-accent/10',
+      'from-success/20 to-success/10',
+      'from-amber-500/20 to-amber-400/10'
+    ];
+    return colors[index % colors.length];
   };
 
   if (loading) {
@@ -149,8 +170,8 @@ export default function Rewards() {
         >
           <div className="grid gap-4">
             {rewardTiers.map((reward, index) => {
-              const Icon = reward.icon;
-              const canRedeem = userProfile && userProfile.points >= reward.points;
+              const Icon = getRewardIcon(reward.name);
+              const canRedeem = userProfile && userProfile.points >= reward.points_cost;
               const isRedeeming = redeeming === reward.id;
               
               return (
@@ -163,21 +184,28 @@ export default function Rewards() {
                   <Card className={`loyalty-card border-0 ${!canRedeem ? 'opacity-75' : ''}`}>
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4">
-                        <div className={`w-16 h-16 bg-gradient-to-br ${reward.color} rounded-xl flex items-center justify-center`}>
-                          <Icon className="w-8 h-8 text-foreground" />
-                        </div>
+                        {reward.image_url ? (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden">
+                            <img 
+                              src={reward.image_url} 
+                              alt={reward.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className={`w-16 h-16 bg-gradient-to-br ${getRewardColor(index)} rounded-xl flex items-center justify-center`}>
+                            <Icon className="w-8 h-8 text-foreground" />
+                          </div>
+                        )}
                         
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-foreground">{reward.title}</h3>
-                            <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
-                              {reward.category}
-                            </span>
+                            <h3 className="font-semibold text-foreground">{reward.name}</h3>
                           </div>
                           <p className="text-sm text-muted-foreground mb-3">{reward.description}</p>
                           
                           <div className="flex items-center justify-between">
-                            <PointsBadge points={reward.points} size="sm" animated={false} />
+                            <PointsBadge points={reward.points_cost} size="sm" animated={false} />
                             
                             <CustomButton
                               variant={canRedeem ? "premium" : "outline"}

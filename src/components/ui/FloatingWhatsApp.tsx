@@ -1,7 +1,15 @@
 import { MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 export function FloatingWhatsApp() {
+  const location = useLocation();
+  
+  // Don't show on auth page
+  if (location.pathname === '/auth') {
+    return null;
+  }
+
   const handleWhatsAppClick = () => {
     const phoneNumber = '4491431962';
     const message = encodeURIComponent('¡Hola! Me gustaría obtener más información.');
