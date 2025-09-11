@@ -12,12 +12,8 @@ export function FloatingWhatsApp() {
     window.open(whatsappUrl, '_blank');
   };
 
-  // Don't render on auth page
-  if (location.pathname === '/auth') {
-    return null;
-  }
-
-  return (
+  // Don't render on auth page - use conditional rendering instead of early return
+  return location.pathname === '/auth' ? null : (
     <motion.button
       onClick={handleWhatsAppClick}
       className="fixed bottom-28 right-4 bg-[#25D366] hover:bg-[#128C7E] text-white p-4 rounded-full shadow-lg z-50 transition-colors duration-300"
