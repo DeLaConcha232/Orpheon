@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthForm } from '@/components/auth/AuthForm';
+import { PWAInstall } from '@/components/ui/PWAInstall';
 
 export default function Auth() {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
@@ -43,6 +44,8 @@ export default function Auth() {
         </motion.div>
         
         <AuthForm mode={mode} onModeChange={setMode} />
+        
+        <PWAInstall />
       </div>
     </div>
   );

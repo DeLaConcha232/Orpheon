@@ -42,25 +42,29 @@ export function PWAInstall() {
 
   return (
     <>
-      <div className="fixed bottom-32 left-4 flex flex-col gap-2 z-40">
+      <div className="flex justify-center gap-4 mt-6">
         {platforms.map((platform) => {
           const Icon = platform.icon;
           return (
             <motion.button
               key={platform.id}
               onClick={() => handlePlatformSelect(platform.id as any)}
-              className="w-10 h-10 bg-card/80 backdrop-blur-sm hover:bg-card border border-border rounded-full flex items-center justify-center shadow-lg transition-colors duration-300"
+              className="w-12 h-12 bg-card/80 backdrop-blur-sm hover:bg-card border border-border rounded-full flex items-center justify-center shadow-lg transition-colors duration-300"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              initial={{ scale: 0, x: -20 }}
-              animate={{ scale: 1, x: 0 }}
+              initial={{ scale: 0, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
               transition={{ delay: platform.id === 'ios' ? 0.1 : platform.id === 'android' ? 0.2 : 0.3 }}
             >
-              <Icon className="w-5 h-5 text-foreground" />
+              <Icon className="w-6 h-6 text-foreground" />
             </motion.button>
           );
         })}
       </div>
+
+      <p className="text-center text-xs text-muted-foreground mt-3">
+        Instalar como aplicación
+      </p>
 
       <AnimatePresence>
         {showPopup && (
