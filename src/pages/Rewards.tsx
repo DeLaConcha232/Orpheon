@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PointsBadge } from '@/components/loyalty/PointsBadge';
 import { CustomButton } from '@/components/ui/custom-button';
@@ -20,43 +21,18 @@ interface RewardType {
   points_cost: number;
   image_url?: string;
   is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
-const rewardTiers: RewardType[] = [
-  {
-    id: '1',
-    name: 'Descuento 10%',
-    description: 'En tu próxima compra',
-    points_cost: 100,
-    is_active: true
-  },
-  {
-    id: '2',
-    name: 'Producto Gratis',
-    description: 'Gomitas o galletas',
-    points_cost: 200,
-    is_active: true
-  },
-  {
-    id: '3',
-    name: 'Café Premium',
-    description: 'En café partner',
-    points_cost: 150,
-    is_active: true
-  },
-  {
-    id: '4',
-    name: 'Pack Exclusivo',
-    description: 'Productos premium',
-    points_cost: 500,
-    is_active: true
-  }
-];
 
 
 export default function Rewards() {
   const { user, loading } = useAuth();
+  const { t } = useLanguage();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [rewards, setRewards] = useState<RewardType[]>([]);
+  const [loadingRewards, setLoadingRewards] = useState(true);
   const [redeeming, setRedeeming] = useState<string | null>(null);
 
   if (!loading && !user) {
@@ -66,6 +42,7 @@ export default function Rewards() {
   useEffect(() => {
     if (user) {
       fetchUserProfile();
+      fetchRewards();
     }
   }, [user]);
 
@@ -77,6 +54,44 @@ export default function Rewards() {
       .single();
     
     setUserProfile(data);
+  };
+
+  const fetchRewards = async () => {
+    setLoadingRewards(true);
+    // Using static data since reward_types table doesn't exist yet
+    const staticRewards: RewardType[] = [
+      {
+        id: '1',
+        name: 'Descuento 10%',
+        description: 'En tu próxima compra',
+        points_cost: 100,
+        is_active: true
+      },
+      {
+        id: '2',
+        name: 'Producto Gratis',
+        description: 'Gomitas o galletas',
+        points_cost: 200,
+        is_active: true
+      },
+      {
+        id: '3',
+        name: 'Café Premium',
+        description: 'En café partner',
+        points_cost: 150,
+        is_active: true
+      },
+      {
+        id: '4',
+        name: 'Pack Exclusivo',
+        description: 'Productos premium',
+        points_cost: 500,
+        is_active: true
+      }
+    ];
+    
+    setRewards(staticRewards);
+    setLoadingRewards(false);
   };
 
 
@@ -131,7 +146,7 @@ export default function Rewards() {
     return colors[index % colors.length];
   };
 
-  if (loading) {
+  if (loading || loadingRewards) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background premium-bg">
         <motion.div
@@ -153,8 +168,8 @@ export default function Rewards() {
       >
         <div className="text-center">
           <Gift className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="text-2xl font-heading font-bold">Catálogo de Premios</h1>
-          <p className="text-white/80">Canjea tus puntos</p>
+          <h1 className="text-2xl font-heading font-bold">{t('rewards.title')}</h1>
+          <p className="text-white/80">{t('rewards.subtitle')}</p>
           <div className="mt-4">
             <PointsBadge points={userProfile?.points || 0} size="lg" />
           </div>
@@ -169,7 +184,7 @@ export default function Rewards() {
           transition={{ delay: 0.1 }}
         >
           <div className="grid gap-4">
-            {rewardTiers.map((reward, index) => {
+            {rewards.map((reward, index) => {
               const Icon = getRewardIcon(reward.name);
               const canRedeem = userProfile && userProfile.points >= reward.points_cost;
               const isRedeeming = redeeming === reward.id;
@@ -220,15 +235,15 @@ export default function Rewards() {
                                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                                     className="w-3 h-3 border border-white border-t-transparent rounded-full mr-1"
                                   />
-                                  Canjeando...
+                                  {t('rewards.redeeming')}
                                 </>
                               ) : canRedeem ? (
                                 <>
                                   <Sparkles className="w-3 h-3 mr-1" />
-                                  Canjear
+                                  {t('rewards.redeem')}
                                 </>
                               ) : (
-                                'Faltan puntos'
+                                t('rewards.insufficient')
                               )}
                             </CustomButton>
                           </div>
@@ -252,21 +267,21 @@ export default function Rewards() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-foreground">
                 <Star className="w-5 h-5 text-secondary" />
-                ¿Cómo ganar más puntos?
+                {t('rewards.howToEarn')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-secondary" />
-                <span className="text-sm text-muted-foreground">Escanea códigos de productos</span>
+                <span className="text-sm text-muted-foreground">{t('rewards.scanCodes')}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-accent" />
-                <span className="text-sm text-muted-foreground">Compra productos participantes</span>
+                <span className="text-sm text-muted-foreground">{t('rewards.buyProducts')}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-success" />
-                <span className="text-sm text-muted-foreground">Participa en promociones especiales</span>
+                <span className="text-sm text-muted-foreground">{t('rewards.promotions')}</span>
               </div>
             </CardContent>
           </Card>

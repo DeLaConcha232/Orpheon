@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PointsBadgeProps {
   points: number;
@@ -8,6 +9,7 @@ interface PointsBadgeProps {
 }
 
 export function PointsBadge({ points, size = 'md', animated = true }: PointsBadgeProps) {
+  const { t } = useLanguage();
   const sizeClasses = {
     sm: 'text-sm px-3 py-1',
     md: 'text-base px-4 py-2',
@@ -29,7 +31,7 @@ export function PointsBadge({ points, size = 'md', animated = true }: PointsBadg
     `}>
       <Sparkles className={iconSizes[size]} />
       <span>{points.toLocaleString()}</span>
-      <span className="text-xs opacity-90">pts</span>
+      <span className="text-xs opacity-90">{t('common.pts')}</span>
     </div>
   );
 

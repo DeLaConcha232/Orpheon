@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { PWAInstall } from '@/components/ui/PWAInstall';
 
 export default function Auth() {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
   const { user, loading } = useAuth();
+  const { t } = useLanguage();
 
   // Redirect if already authenticated
   if (!loading && user) {

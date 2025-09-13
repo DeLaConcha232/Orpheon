@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PointsBadge } from '@/components/loyalty/PointsBadge';
 import { CustomButton } from '@/components/ui/custom-button';
@@ -11,7 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings, Shield, QrCode, Hash, ChevronDown, Copy } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings, Shield, QrCode, Hash, ChevronDown, Copy, Languages, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SecurityMonitor } from '@/components/security/SecurityMonitor';
@@ -29,6 +31,7 @@ interface UserProfile {
 
 export default function Profile() {
   const { user, loading, signOut } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({ full_name: '', phone: '' });
@@ -180,7 +183,7 @@ export default function Profile() {
           <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="w-10 h-10" />
           </div>
-          <h1 className="text-2xl font-heading font-bold">{profile?.full_name || 'Usuario'}</h1>
+          <h1 className="text-2xl font-heading font-bold">{profile?.full_name || t('profile.title')}</h1>
           <p className="text-white/80">{profile?.email}</p>
           <div className="mt-4">
             <PointsBadge points={profile?.points || 0} size="lg" />
@@ -194,7 +197,7 @@ export default function Profile() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              Perfil
+              {t('nav.profile')}
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -258,6 +261,43 @@ export default function Profile() {
               </Card>
             </motion.section>
 
+            {/* Language Selection */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <Card className="loyalty-card border-0 premium-bg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <Languages className="w-5 h-5 text-primary" />
+                    {t('profile.language')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Select value={language} onValueChange={(value: 'es' | 'en') => setLanguage(value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="es">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4" />
+                          {t('profile.spanish')}
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="en">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4" />
+                          {t('profile.english')}
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            </motion.section>
+
             {/* Personal Information - Collapsible */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
@@ -271,7 +311,7 @@ export default function Profile() {
                       <div className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-foreground">
                           <Settings className="w-5 h-5 text-secondary" />
-                          Información Personal
+                          {t('profile.personalInfo')}
                         </CardTitle>
                         <div className="flex items-center gap-2">
                           {!personalInfoOpen && (

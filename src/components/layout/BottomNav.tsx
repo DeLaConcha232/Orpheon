@@ -2,17 +2,20 @@ import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, QrCode, Gift, History, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const navItems = [
-  { icon: Home, label: 'Inicio', path: '/' },
-  { icon: QrCode, label: 'Escanear', path: '/scan' },
-  { icon: Gift, label: 'Premios', path: '/rewards' },
-  { icon: History, label: 'Historial', path: '/history' },
-  { icon: User, label: 'Perfil', path: '/profile' },
+const getNavItems = (t: (key: string) => string) => [
+  { icon: Home, label: t('nav.home'), path: '/' },
+  { icon: QrCode, label: t('nav.scan'), path: '/scan' },
+  { icon: Gift, label: t('nav.rewards'), path: '/rewards' },
+  { icon: History, label: t('nav.history'), path: '/history' },
+  { icon: User, label: t('nav.profile'), path: '/profile' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
+  const { t } = useLanguage();
+  const navItems = getNavItems(t);
 
   return (
     <motion.nav
