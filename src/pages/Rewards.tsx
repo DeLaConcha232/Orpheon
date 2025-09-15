@@ -7,8 +7,9 @@ import { BottomNav } from '@/components/layout/BottomNav';
 import { PointsBadge } from '@/components/loyalty/PointsBadge';
 import { CustomButton } from '@/components/ui/custom-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Gift, Star, Coffee, ShoppingBag, Crown, Sparkles } from 'lucide-react';
+import { Gift, Star, Coffee, ShoppingBag, Crown, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface UserProfile {
   points: number;
@@ -58,71 +59,130 @@ export default function Rewards() {
 
   const fetchRewards = async () => {
     setLoadingRewards(true);
-    // Using static data since reward_types table doesn't exist yet
-    const staticRewards: RewardType[] = [
-      {
-        id: '1',
-        name: 'Descuento 10%',
-        description: 'En tu próxima compra',
-        points_cost: 100,
-        is_active: true
-      },
-      {
-        id: '2',
-        name: 'Producto Gratis',
-        description: 'Gomitas o galletas',
-        points_cost: 200,
-        is_active: true
-      },
-      {
-        id: '3',
-        name: 'Café Premium',
-        description: 'En café partner',
-        points_cost: 150,
-        is_active: true
-      },
-      {
-        id: '4',
-        name: 'Pack Exclusivo',
-        description: 'Productos premium',
-        points_cost: 500,
-        is_active: true
-      }
-    ];
     
-    setRewards(staticRewards);
-    setLoadingRewards(false);
+    try {
+      // For now, use static data until we create a proper database function
+      const staticRewards: RewardType[] = [
+        {
+          id: '1',
+          name: 'Descuento 10%',
+          description: 'En tu próxima compra',
+          points_cost: 100,
+          is_active: true
+        },
+        {
+          id: '2',
+          name: 'Producto Gratis',
+          description: 'Gomitas o galletas',
+          points_cost: 200,
+          is_active: true
+        },
+        {
+          id: '3',
+          name: 'Café Premium',
+          description: 'En café partner',
+          points_cost: 150,
+          is_active: true
+        },
+        {
+          id: '4',
+          name: 'Pack Exclusivo',
+          description: 'Productos premium',
+          points_cost: 500,
+          is_active: true
+        }
+      ];
+      setRewards(staticRewards);
+    } catch (error) {
+      console.error('Error loading rewards:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar las recompensas",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingRewards(false);
+    }
   };
 
 
   const handleRedeem = async (reward: RewardType) => {
-    if (!userProfile || userProfile.points < reward.points_cost) return;
+    if (!userProfile || userProfile.points < reward.points_cost) {
+      toast({
+        title: "Puntos insuficientes",
+        description: "No tienes puntos suficientes para reclamar esta recompensa.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setRedeeming(reward.id);
     
     try {
+      // Check if user has enough points (double check)
+      if (userProfile.points < reward.points_cost) {
+        toast({
+          title: "Puntos insuficientes",
+          description: "No tienes puntos suficientes para reclamar esta recompensa.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Add to redeemed rewards
-      await supabase
+      const { error: redeemError } = await supabase
         .from('redeemed_rewards')
         .insert({
           user_id: user!.id,
           reward_type: reward.name,
-          points_cost: reward.points_cost
+          points_cost: reward.points_cost,
+          status: 'claimed'
         });
 
+      if (redeemError) {
+        console.error('Error saving redemption:', redeemError);
+        toast({
+          title: "Error",
+          description: "Hubo un problema al procesar tu recompensa.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Update user points
-      await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
           points: userProfile.points - reward.points_cost
         })
         .eq('id', user!.id);
 
-      // Refresh profile
+      if (updateError) {
+        console.error('Error updating points:', updateError);
+        toast({
+          title: "Error",
+          description: "Hubo un problema al actualizar tus puntos.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Success! Refresh profile and show success message
       await fetchUserProfile();
+      
+      toast({
+        title: "¡Recompensa reclamada!",
+        description: `Has reclamado ${reward.name} por ${reward.points_cost} puntos.`,
+        variant: "default",
+      });
 
     } catch (error) {
       console.error('Redeem error:', error);
+      toast({
+        title: "Error",
+        description: "Hubo un problema al procesar tu recompensa.",
+        variant: "destructive",
+      });
     } finally {
       setRedeeming(null);
     }
