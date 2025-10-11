@@ -18,12 +18,12 @@ interface UserProfile {
 interface RewardType {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   points_cost: number;
-  image_url?: string;
-  is_active: boolean;
-  created_at?: string;
-  updated_at?: string;
+  image_url: string | null;
+  is_active: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 
@@ -61,38 +61,23 @@ export default function Rewards() {
     setLoadingRewards(true);
     
     try {
-      // For now, use static data until we create a proper database function
-      const staticRewards: RewardType[] = [
-        {
-          id: '1',
-          name: 'Descuento 10%',
-          description: 'En tu próxima compra',
-          points_cost: 100,
-          is_active: true
-        },
-        {
-          id: '2',
-          name: 'Producto Gratis',
-          description: 'Gomitas o galletas',
-          points_cost: 200,
-          is_active: true
-        },
-        {
-          id: '3',
-          name: 'Café Premium',
-          description: 'En café partner',
-          points_cost: 150,
-          is_active: true
-        },
-        {
-          id: '4',
-          name: 'Pack Exclusivo',
-          description: 'Productos premium',
-          points_cost: 500,
-          is_active: true
-        }
-      ];
-      setRewards(staticRewards);
+      const { data, error } = await supabase
+        .from('reward_types')
+        .select('*')
+        .eq('is_active', true)
+        .order('points_cost', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching rewards:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar las recompensas",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setRewards(data || []);
     } catch (error) {
       console.error('Error loading rewards:', error);
       toast({
@@ -277,7 +262,7 @@ export default function Rewards() {
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-semibold text-foreground">{reward.name}</h3>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-3">{reward.description}</p>
+                          <p className="text-sm text-muted-foreground mb-3">{reward.description || 'Sin descripción'}</p>
                           
                           <div className="flex items-center justify-between">
                             <PointsBadge points={reward.points_cost} size="sm" animated={false} />
