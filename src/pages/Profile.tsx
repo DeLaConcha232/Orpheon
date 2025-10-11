@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { BottomNav } from '@/components/layout/BottomNav';
@@ -13,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings, Shield, QrCode, Hash, ChevronDown, Copy, Languages, Globe } from 'lucide-react';
+import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings, Shield, QrCode, Hash, ChevronDown, Copy, Languages, Globe, Moon, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SecurityMonitor } from '@/components/security/SecurityMonitor';
@@ -32,6 +33,7 @@ interface UserProfile {
 export default function Profile() {
   const { user, loading, signOut } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({ full_name: '', phone: '' });
@@ -261,11 +263,54 @@ export default function Profile() {
               </Card>
             </motion.section>
 
-            {/* Language Selection */}
+            {/* Theme Selection */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
+            >
+              <Card className="loyalty-card border-0 premium-bg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <Settings className="w-5 h-5 text-primary" />
+                    Tema
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Select value={theme} onValueChange={setTheme}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">
+                        <div className="flex items-center gap-2">
+                          <Sun className="w-4 h-4" />
+                          Modo Claro
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="dark">
+                        <div className="flex items-center gap-2">
+                          <Moon className="w-4 h-4" />
+                          Modo Oscuro
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="system">
+                        <div className="flex items-center gap-2">
+                          <Settings className="w-4 h-4" />
+                          Sistema
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            </motion.section>
+
+            {/* Language Selection */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
             >
               <Card className="loyalty-card border-0 premium-bg">
                 <CardHeader>
@@ -302,7 +347,7 @@ export default function Profile() {
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.25 }}
             >
               <Card className="loyalty-card border-0">
                 <Collapsible open={personalInfoOpen} onOpenChange={setPersonalInfoOpen}>
@@ -414,7 +459,7 @@ export default function Profile() {
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.35 }}
             >
               <Card className="loyalty-card border-0 premium-bg">
                 <CardHeader>
@@ -446,7 +491,7 @@ export default function Profile() {
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.45 }}
             >
               <CustomButton
                 variant="outline"
