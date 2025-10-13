@@ -1,8 +1,6 @@
-const CACHE_NAME = 'nectar-v1';
+const CACHE_NAME = 'nectar-v3';
 const STATIC_ASSETS = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',  
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
@@ -43,70 +41,76 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
-  
+
+  const url = event.request.url;
+
+  // Bypass caching for dev module graph and Vite assets
+  if (
+    url.includes('/node_modules/.vite') ||
+    url.includes('/@vite') ||
+    url.includes('/src/') ||
+    url.includes('/assets/')
+  ) {
+    return; // let the network handle it to avoid stale modules
+  }
+
   // Skip Supabase API calls for real-time data
-  if (event.request.url.includes('supabase.co')) {
+  if (url.includes('supabase.co')) {
     return;
   }
 
   // Skip sensitive endpoints
-  if (event.request.url.includes('/auth') || 
-      event.request.url.includes('/api/') ||
-      event.request.url.includes('token')) {
+  if (url.includes('/auth') || url.includes('/api/') || url.includes('token')) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request)
+    caches
+      .match(event.request)
       .then((response) => {
-        // If we have a cached response, add security headers
         if (response) {
           const secureResponse = new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
             headers: {
               ...Object.fromEntries(response.headers.entries()),
-              ...SECURITY_HEADERS
-            }
+              ...SECURITY_HEADERS,
+            },
           });
           return secureResponse;
         }
 
-        // Fetch from network with enhanced security checks
         return fetch(event.request).then((response) => {
-          // Don't cache non-successful responses or non-basic responses
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
 
-          // Don't cache responses with sensitive headers
-          if (response.headers.get('authorization') || 
-              response.headers.get('cookie') ||
-              response.headers.get('set-cookie')) {
+          if (
+            response.headers.get('authorization') ||
+            response.headers.get('cookie') ||
+            response.headers.get('set-cookie')
+          ) {
             return response;
           }
 
-          // Clone response to cache with security headers
           const responseToCache = response.clone();
           const secureResponse = new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
             headers: {
               ...Object.fromEntries(response.headers.entries()),
-              ...SECURITY_HEADERS
-            }
+              ...SECURITY_HEADERS,
+            },
           });
 
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
 
           return secureResponse;
         });
       })
       .catch(() => {
-        // Serve offline page for navigation requests
         if (event.request.mode === 'navigate') {
           return caches.match('/').then((response) => {
             if (response) {
@@ -115,8 +119,8 @@ self.addEventListener('fetch', (event) => {
                 statusText: response.statusText,
                 headers: {
                   ...Object.fromEntries(response.headers.entries()),
-                  ...SECURITY_HEADERS
-                }
+                  ...SECURITY_HEADERS,
+                },
               });
             }
           });
