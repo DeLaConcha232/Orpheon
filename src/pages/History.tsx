@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PointsBadge } from '@/components/loyalty/PointsBadge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { History as HistoryIcon, Plus, Minus, Calendar, Package } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -84,7 +84,6 @@ export default function History() {
     setLoadingData(true);
     
     try {
-      // Fetch code redemptions
       const { data: redemptionsData } = await supabase
         .from('user_redemptions')
         .select(`
@@ -99,7 +98,6 @@ export default function History() {
         .eq('user_id', user!.id)
         .order('redeemed_at', { ascending: false });
 
-      // Fetch reward redemptions
       const { data: rewardsData } = await supabase
         .from('redeemed_rewards')
         .select('*')
@@ -125,32 +123,6 @@ export default function History() {
     });
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'gomitas': return 'bg-secondary/20 text-secondary';
-      case 'galletas': return 'bg-accent/20 text-accent';
-      case 'cremas': return 'bg-success/20 text-success';
-      default: return 'bg-muted';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'completed':
-      case 'entregado':
-      case 'aceptado': 
-        return 'bg-success/20 text-success';
-      case 'pending':
-      case 'pendiente': 
-        return 'bg-warning/20 text-warning';
-      case 'cancelled':
-      case 'cancelado': 
-        return 'bg-destructive/20 text-destructive';
-      default: 
-        return 'bg-muted/20 text-muted-foreground';
-    }
-  };
-
   const getStatusLabel = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'completed':
@@ -165,13 +137,13 @@ export default function History() {
       case 'cancelado': 
         return 'Cancelado';
       default: 
-        return status || 'Desconocido';
+        return status || 'Pendiente';
     }
   };
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background premium-bg">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -182,75 +154,73 @@ export default function History() {
   }
 
   return (
-    <div className="min-h-screen bg-background premium-bg pb-20">
-      {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="hero-gradient p-6 text-white"
-      >
-        <div className="text-center">
-          <HistoryIcon className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="text-2xl font-heading font-bold">Mi Historial</h1>
-          <p className="text-white/80">Revisa tu actividad</p>
-        </div>
-      </motion.header>
-
+    <div className="min-h-screen gradient-subtle pb-24">
       <div className="p-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-heading font-bold mb-2">Mi Historial</h1>
+          <p className="text-muted-foreground">Revisa tu actividad</p>
+        </motion.div>
+
         <Tabs defaultValue="earned" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="earned" className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Puntos Ganados
+          <TabsList className="grid w-full grid-cols-2 mb-6 glass-card p-1">
+            <TabsTrigger value="earned" className="rounded-2xl data-[state=active]:bg-secondary/20">
+              <Plus className="w-4 h-4 mr-2" />
+              Ganados
             </TabsTrigger>
-            <TabsTrigger value="spent" className="flex items-center gap-2">
-              <Minus className="w-4 h-4" />
-              Premios Canjeados
+            <TabsTrigger value="spent" className="rounded-2xl data-[state=active]:bg-accent/20">
+              <Minus className="w-4 h-4 mr-2" />
+              Canjeados
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="earned" className="space-y-4">
+          <TabsContent value="earned" className="space-y-3">
             {redemptions.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center py-12"
               >
-                <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">No hay actividad</h3>
-                <p className="text-muted-foreground">Escanea tu primer código para empezar</p>
+                <Card className="floating-card">
+                  <CardContent className="p-12 text-center">
+                    <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="font-semibold mb-2">No hay actividad</h3>
+                    <p className="text-sm text-muted-foreground">Escanea tu primer código para empezar</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             ) : (
               redemptions.map((redemption, index) => (
                 <motion.div
                   key={redemption.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="loyalty-card border-0">
+                  <Card className="floating-card">
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-xl flex items-center justify-center">
-                            <Plus className="w-6 h-6 text-secondary" />
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                          <Plus className="w-6 h-6 text-secondary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">
+                            {redemption.product_codes.products.name}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs px-2 py-1 rounded-full bg-secondary/10 text-secondary">
+                              {redemption.product_codes.products.category}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate">
+                              {redemption.product_codes.code_value}
+                            </span>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-foreground">
-                              {redemption.product_codes.products.name}
-                            </h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className={`text-xs px-2 py-1 rounded-full ${getCategoryColor(redemption.product_codes.products.category)}`}>
-                                {redemption.product_codes.products.category}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {redemption.product_codes.code_value}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(redemption.redeemed_at)}
-                            </div>
+                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(redemption.redeemed_at)}
                           </div>
                         </div>
                         <PointsBadge points={redemption.points_earned} size="sm" animated={false} />
@@ -262,48 +232,47 @@ export default function History() {
             )}
           </TabsContent>
 
-          <TabsContent value="spent" className="space-y-4">
+          <TabsContent value="spent" className="space-y-3">
             {rewards.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center py-12"
               >
-                <HistoryIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">No hay canjes</h3>
-                <p className="text-muted-foreground">Visita la sección de premios para canjear</p>
+                <Card className="floating-card">
+                  <CardContent className="p-12 text-center">
+                    <HistoryIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="font-semibold mb-2">No hay canjes</h3>
+                    <p className="text-sm text-muted-foreground">Visita la sección de premios para canjear</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             ) : (
               rewards.map((reward, index) => (
                 <motion.div
                   key={reward.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="loyalty-card border-0">
+                  <Card className="floating-card">
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/10 rounded-xl flex items-center justify-center">
-                            <Minus className="w-6 h-6 text-accent" />
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                          <Minus className="w-6 h-6 text-accent" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">{reward.reward_type}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                              {getStatusLabel(reward.status)}
+                            </span>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-foreground">{reward.reward_type}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(reward.status)}`}>
-                                {getStatusLabel(reward.status)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(reward.redeemed_at)}
-                            </div>
+                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(reward.redeemed_at)}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <PointsBadge points={-reward.points_cost} size="sm" animated={false} />
-                        </div>
+                        <PointsBadge points={-reward.points_cost} size="sm" animated={false} />
                       </div>
                     </CardContent>
                   </Card>

@@ -4,104 +4,104 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Premium Gourmet Design System - Nectar Loyalty */
+/* Modern Glassmorphism Design System - Nectar Loyalty */
 
 @layer base {
   :root {
-    /* Premium Gourmet Color Palette */
-    --background: 28 25% 97%;
-    --foreground: 20 14% 4%;
+    /* Light Mode - Clean & Minimal */
+    --background: 220 15% 98%;
+    --foreground: 220 15% 12%;
 
-    --card: 28 25% 97%;
-    --card-foreground: 20 14% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 12%;
 
-    --popover: 28 25% 97%;
-    --popover-foreground: 20 14% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 12%;
 
-    /* Premium brand colors - warm stone base */
-    --primary: 20 14% 4%;
-    --primary-foreground: 28 25% 97%;
+    /* Subtle primary colors */
+    --primary: 220 15% 12%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Gourmet amber accents */
-    --secondary: 45 93% 47%;
-    --secondary-foreground: 28 25% 97%;
+    /* Muted green accent */
+    --secondary: 145 25% 55%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 60 5% 96%;
-    --muted-foreground: 25 5% 45%;
+    --muted: 220 10% 95%;
+    --muted-foreground: 220 10% 45%;
 
-    /* Rose accent for highlights */
-    --accent: 346 77% 49%;
-    --accent-foreground: 28 25% 97%;
+    /* Soft accent */
+    --accent: 200 80% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 28 25% 97%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 20 6% 90%;
-    --input: 20 6% 90%;
-    --ring: 20 14% 4%;
+    --border: 220 10% 90%;
+    --input: 220 10% 92%;
+    --ring: 220 15% 12%;
 
-    --radius: 0.75rem;
+    --radius: 1.25rem;
 
-    /* Success state - emerald */
-    --success: 142 71% 45%;
-    --success-foreground: 28 25% 97%;
+    /* Success state */
+    --success: 145 60% 50%;
+    --success-foreground: 0 0% 100%;
 
-    /* Warning state - amber */
+    /* Warning state */
     --warning: 38 92% 50%;
-    --warning-foreground: 20 14% 4%;
+    --warning-foreground: 220 15% 12%;
 
-    /* Premium gradients */
-    --gradient-premium: linear-gradient(135deg, hsl(45 93% 47%), hsl(346 77% 49%));
-    --gradient-hero: linear-gradient(135deg, hsl(20 14% 4%), hsl(28 25% 8%));
-    --gradient-glow: linear-gradient(135deg, hsl(45 93% 85%), hsl(346 77% 85%));
+    /* Glassmorphism effects */
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 220 10% 85% / 0.5;
+    --glass-shadow: 220 15% 12% / 0.08;
 
-    /* Premium shadows */
-    --shadow-premium: 0 20px 40px -15px hsl(20 14% 4% / 0.3);
-    --shadow-glow: 0 0 40px hsl(45 93% 47% / 0.4);
-    --shadow-card: 0 4px 20px -2px hsl(20 14% 4% / 0.08);
-
-    /* Smooth premium transitions */
-    --transition-premium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* Typography scale */
+    /* Typography */
     --font-heading: 'Inter', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
   }
 
   .dark {
-    --background: 20 14% 4%;
-    --foreground: 28 25% 97%;
+    /* Dark Mode - Deep & Premium */
+    --background: 220 20% 8%;
+    --foreground: 220 10% 95%;
 
-    --card: 20 14% 4%;
-    --card-foreground: 28 25% 97%;
+    --card: 220 18% 12%;
+    --card-foreground: 220 10% 95%;
 
-    --popover: 20 14% 4%;
-    --popover-foreground: 28 25% 97%;
+    --popover: 220 18% 12%;
+    --popover-foreground: 220 10% 95%;
 
-    --primary: 28 25% 97%;
-    --primary-foreground: 20 14% 4%;
+    --primary: 220 10% 95%;
+    --primary-foreground: 220 20% 8%;
 
-    --secondary: 45 93% 47%;
-    --secondary-foreground: 20 14% 4%;
+    /* Vibrant green accent for dark mode */
+    --secondary: 145 50% 60%;
+    --secondary-foreground: 220 20% 8%;
 
-    --muted: 25 8% 15%;
-    --muted-foreground: 24 5% 64%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 60%;
 
-    --accent: 346 77% 49%;
-    --accent-foreground: 28 25% 97%;
+    /* Bright blue accent */
+    --accent: 200 90% 65%;
+    --accent-foreground: 220 20% 8%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 28 25% 97%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 220 10% 95%;
 
-    --border: 25 8% 18%;
-    --input: 25 8% 18%;
-    --ring: 28 25% 97%;
+    --border: 220 15% 20%;
+    --input: 220 15% 22%;
+    --ring: 220 10% 95%;
 
-    --success: 142 71% 45%;
-    --success-foreground: 28 25% 97%;
+    --success: 145 60% 55%;
+    --success-foreground: 220 20% 8%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 20 14% 4%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 220 20% 8%;
+
+    /* Dark glassmorphism */
+    --glass-bg: 220 18% 15% / 0.6;
+    --glass-border: 220 10% 30% / 0.3;
+    --glass-shadow: 0 0% 0% / 0.4;
   }
 }
 
@@ -121,61 +121,65 @@
 }
 
 @layer components {
-  .premium-gradient {
-    background: var(--gradient-premium);
+  /* Glassmorphism card - floating components */
+  .glass-card {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: 
+      0 8px 32px 0 hsl(var(--glass-shadow)),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.05);
   }
 
-  .hero-gradient {
-    background: var(--gradient-hero);
+  /* Liquid glass effect */
+  .liquid-glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+    -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+    border: 1px solid hsl(var(--glass-border));
   }
 
-  .glow-gradient {
-    background: var(--gradient-glow);
-  }
-
-  .premium-shadow {
-    box-shadow: var(--shadow-premium);
-  }
-
-  .glow-shadow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .card-shadow {
-    box-shadow: var(--shadow-card);
-  }
-
-  .premium-transition {
-    transition: var(--transition-premium);
-  }
-
-  /* Animated Background for Premium Feel */
-  .premium-bg {
+  /* Subtle gradient backgrounds */
+  .gradient-subtle {
     background: 
-      radial-gradient(circle at 20% 80%, hsl(45 93% 47% / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, hsl(346 77% 49% / 0.1) 0%, transparent 50%);
+      radial-gradient(circle at 30% 20%, hsl(var(--secondary) / 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, hsl(var(--accent) / 0.06) 0%, transparent 50%);
   }
 
-  /* Premium button styles */
-  .btn-premium {
-    @apply premium-gradient text-white font-semibold px-6 py-3 rounded-xl premium-shadow premium-transition;
-    @apply hover:scale-105 active:scale-95;
+  /* Smooth transitions */
+  .smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .btn-hero {
-    @apply hero-gradient text-white border border-white/20 backdrop-blur-sm;
-    @apply hover:bg-white/10 premium-transition;
+  /* Floating card with shadow */
+  .floating-card {
+    @apply glass-card rounded-3xl smooth-transition;
+    @apply hover:scale-[1.02] hover:shadow-xl active:scale-[0.98];
   }
 
-  /* Loyalty card style */
-  .loyalty-card {
-    @apply bg-card border border-border/50 rounded-2xl card-shadow premium-transition;
-    @apply hover:border-secondary/30 hover:-translate-y-1;
+  /* Clean button styles */
+  .btn-clean {
+    @apply bg-primary text-primary-foreground rounded-2xl px-6 py-3;
+    @apply smooth-transition hover:opacity-90 active:scale-95;
   }
 
-  /* Scanner UI */
-  .scanner-overlay {
-    background: linear-gradient(45deg, transparent 30%, hsl(45 93% 47% / 0.1) 50%, transparent 70%);
+  .btn-glass {
+    @apply glass-card rounded-2xl px-6 py-3;
+    @apply smooth-transition hover:bg-white/10 active:scale-95;
+  }
+
+  /* Minimal borders */
+  .border-minimal {
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* Text with subtle gradient */
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 

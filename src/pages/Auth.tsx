@@ -18,7 +18,7 @@ export default function Auth() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background premium-bg">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -29,23 +29,29 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background premium-bg p-4">
+    <div className="min-h-screen flex items-center justify-center gradient-subtle p-6">
       <div className="w-full max-w-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-heading font-bold premium-gradient bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-heading font-bold text-gradient mb-2">
             Nectar Loyalty
           </h1>
           <p className="text-muted-foreground">
-            Tu programa de lealtad premium
+            Tu programa de lealtad
           </p>
         </motion.div>
         
-        <AuthForm mode={mode} onModeChange={setMode} />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <AuthForm mode={mode} onModeChange={setMode} />
+        </motion.div>
         
         <PWAInstall />
       </div>

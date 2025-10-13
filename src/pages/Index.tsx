@@ -4,9 +4,8 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PointsBadge } from '@/components/loyalty/PointsBadge';
-import { CustomButton } from '@/components/ui/custom-button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { QrCode, Gift, History, Sparkles, Star, Users, Package } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { QrCode, Gift, Package, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -33,7 +32,6 @@ const Index = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch featured products
       const { data: productsData } = await supabase
         .from('products')
         .select('*')
@@ -41,7 +39,6 @@ const Index = () => {
         .limit(3)
         .order('created_at', { ascending: false });
 
-      // Fetch user profile for points
       const { data: profileData } = await supabase
         .from('profiles')
         .select('points')
@@ -57,14 +54,13 @@ const Index = () => {
     }
   };
 
-  // Redirect to auth if not authenticated
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background premium-bg">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -75,61 +71,60 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background premium-bg pb-20">
+    <div className="min-h-screen gradient-subtle pb-24">
       {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="hero-gradient p-6 text-white"
-      >
-        <div className="flex items-center justify-between">
+      <div className="p-6 pb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-8"
+        >
           <div>
-            <h1 className="text-2xl font-heading font-bold">
-              ¡Hola, {user?.user_metadata?.full_name || 'Usuario'}!
+            <h1 className="text-3xl font-heading font-bold mb-1">
+              Hola 👋
             </h1>
-            <p className="text-white/80">Bienvenido a Nectar Loyalty</p>
+            <p className="text-muted-foreground">
+              {user?.user_metadata?.full_name || 'Usuario'}
+            </p>
           </div>
           <PointsBadge points={userPoints} size="lg" />
-        </div>
-      </motion.header>
+        </motion.div>
 
-      {/* Main Content */}
-      <div className="p-6 space-y-6">
         {/* Quick Actions */}
-        <motion.section
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 gap-4 mb-8"
         >
-          <h2 className="text-xl font-heading font-semibold mb-4 text-foreground">
-            Acciones Rápidas
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <Link to="/scan">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="loyalty-card p-6 text-center bg-gradient-to-br from-secondary/10 to-secondary/5"
-              >
-                <QrCode className="w-8 h-8 mx-auto mb-3 text-secondary" />
-                <h3 className="font-semibold text-foreground">Escanear Código</h3>
-                <p className="text-sm text-muted-foreground mt-1">Gana puntos</p>
-              </motion.div>
-            </Link>
-            
-            <Link to="/rewards">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="loyalty-card p-6 text-center bg-gradient-to-br from-accent/10 to-accent/5"
-              >
-                <Gift className="w-8 h-8 mx-auto mb-3 text-accent" />
-                <h3 className="font-semibold text-foreground">Ver Premios</h3>
-                <p className="text-sm text-muted-foreground mt-1">Canjea puntos</p>
-              </motion.div>
-            </Link>
-          </div>
-        </motion.section>
+          <Link to="/scan">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="floating-card p-6 text-center"
+            >
+              <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-secondary/10 flex items-center justify-center">
+                <QrCode className="w-6 h-6 text-secondary" />
+              </div>
+              <h3 className="font-semibold mb-1">Escanear</h3>
+              <p className="text-xs text-muted-foreground">Gana puntos</p>
+            </motion.div>
+          </Link>
+          
+          <Link to="/rewards">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="floating-card p-6 text-center"
+            >
+              <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-accent/10 flex items-center justify-center">
+                <Gift className="w-6 h-6 text-accent" />
+              </div>
+              <h3 className="font-semibold mb-1">Premios</h3>
+              <p className="text-xs text-muted-foreground">Canjea ahora</p>
+            </motion.div>
+          </Link>
+        </motion.div>
 
         {/* Featured Products */}
         <motion.section
@@ -137,12 +132,16 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="text-xl font-heading font-semibold mb-4 text-foreground">
-            Productos Destacados
-          </h2>
-          <div className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-heading font-semibold">
+              Productos Destacados
+            </h2>
+            <Sparkles className="w-5 h-5 text-secondary" />
+          </div>
+          
+          <div className="space-y-3">
             {loadingData ? (
-              <div className="text-center py-8">
+              <div className="text-center py-12">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -150,43 +149,46 @@ const Index = () => {
                 />
               </div>
             ) : products.length === 0 ? (
-              <Card className="loyalty-card border-0">
-                <CardContent className="p-8 text-center">
+              <Card className="floating-card">
+                <CardContent className="p-12 text-center">
                   <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="font-semibold text-foreground mb-2">No hay productos disponibles</h3>
-                  <p className="text-sm text-muted-foreground">Los productos se mostrarán aquí cuando estén disponibles</p>
+                  <h3 className="font-semibold mb-2">Próximamente</h3>
+                  <p className="text-sm text-muted-foreground">Los productos aparecerán aquí</p>
                 </CardContent>
               </Card>
             ) : (
               products.map((product, index) => (
                 <motion.div
                   key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="loyalty-card border-0">
+                  <Card className="floating-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-xl flex items-center justify-center overflow-hidden">
+                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
                           {product.image_url ? (
                             <img 
                               src={product.image_url} 
                               alt={product.name}
-                              className="w-full h-full object-cover rounded-xl"
+                              className="w-full h-full object-cover"
                             />
                           ) : (
-                            <Package className="w-8 h-8 text-secondary" />
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-8 h-8 text-muted-foreground" />
+                            </div>
                           )}
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground">{product.name}</h3>
-                          <p className="text-sm text-muted-foreground">{product.description}</p>
-                          <div className="flex items-center gap-2 mt-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold mb-1 truncate">{product.name}</h3>
+                          <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
+                            {product.description}
+                          </p>
+                          <div className="flex items-center gap-2">
                             <PointsBadge points={product.points_value} size="sm" animated={false} />
-                            <span className="text-xs text-muted-foreground">por código</span>
                             {product.category && (
-                              <span className="text-xs px-2 py-1 rounded-full bg-accent/20 text-accent">
+                              <span className="text-xs px-2 py-1 rounded-full bg-secondary/10 text-secondary">
                                 {product.category}
                               </span>
                             )}
@@ -201,35 +203,48 @@ const Index = () => {
           </div>
         </motion.section>
 
-        {/* Program Benefits */}
-        <motion.section
+        {/* Info Card */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
+          className="mt-6"
         >
-          <Card className="loyalty-card border-0 premium-bg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
-                <Users className="w-5 h-5 text-secondary" />
-                Beneficios del Programa
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-secondary" />
-                <span className="text-sm text-muted-foreground">Acumula puntos con cada compra</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-accent" />
-                <span className="text-sm text-muted-foreground">Canjea premios exclusivos</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-success" />
-                <span className="text-sm text-muted-foreground">Acceso a ofertas especiales</span>
+          <Card className="floating-card">
+            <CardContent className="p-6">
+              <h3 className="font-semibold mb-4">¿Cómo funciona?</h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-secondary">1</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium mb-1">Compra productos</p>
+                    <p className="text-xs text-muted-foreground">Busca nuestros productos en tiendas</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-accent">2</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium mb-1">Escanea códigos</p>
+                    <p className="text-xs text-muted-foreground">Encuentra el código en el empaque</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-success">3</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium mb-1">Gana premios</p>
+                    <p className="text-xs text-muted-foreground">Acumula puntos y canjea recompensas</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </motion.section>
+        </motion.div>
       </div>
 
       <BottomNav />

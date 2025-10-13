@@ -5,9 +5,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PointsBadge } from '@/components/loyalty/PointsBadge';
-import { CustomButton } from '@/components/ui/custom-button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Gift, Star, Coffee, ShoppingBag, Crown, Sparkles, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Gift, Coffee, ShoppingBag, Crown, Sparkles, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -25,8 +25,6 @@ interface RewardType {
   created_at: string | null;
   updated_at: string | null;
 }
-
-
 
 export default function Rewards() {
   const { user, loading } = useAuth();
@@ -90,7 +88,6 @@ export default function Rewards() {
     }
   };
 
-
   const handleRedeem = async (reward: RewardType) => {
     if (!userProfile || userProfile.points < reward.points_cost) {
       toast({
@@ -104,7 +101,6 @@ export default function Rewards() {
     setRedeeming(reward.id);
     
     try {
-      // Check if user has enough points (double check)
       if (userProfile.points < reward.points_cost) {
         toast({
           title: "Puntos insuficientes",
@@ -114,7 +110,6 @@ export default function Rewards() {
         return;
       }
 
-      // Add to redeemed rewards
       const { error: redeemError } = await supabase
         .from('redeemed_rewards')
         .insert({
@@ -134,7 +129,6 @@ export default function Rewards() {
         return;
       }
 
-      // Update user points
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
@@ -152,7 +146,6 @@ export default function Rewards() {
         return;
       }
 
-      // Success! Refresh profile and show success message
       await fetchUserProfile();
       
       toast({
@@ -181,19 +174,9 @@ export default function Rewards() {
     return Gift;
   };
 
-  const getRewardColor = (index: number) => {
-    const colors = [
-      'from-secondary/20 to-secondary/10',
-      'from-accent/20 to-accent/10',
-      'from-success/20 to-success/10',
-      'from-amber-500/20 to-amber-400/10'
-    ];
-    return colors[index % colors.length];
-  };
-
   if (loading || loadingRewards) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background premium-bg">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -204,129 +187,141 @@ export default function Rewards() {
   }
 
   return (
-    <div className="min-h-screen bg-background premium-bg pb-20">
-      {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="hero-gradient p-6 text-white"
-      >
-        <div className="text-center">
-          <Gift className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="text-2xl font-heading font-bold">{t('rewards.title')}</h1>
-          <p className="text-white/80">{t('rewards.subtitle')}</p>
-          <div className="mt-4">
-            <PointsBadge points={userProfile?.points || 0} size="lg" />
-          </div>
-        </div>
-      </motion.header>
-
+    <div className="min-h-screen gradient-subtle pb-24">
       <div className="p-6 space-y-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-6"
+        >
+          <h1 className="text-3xl font-heading font-bold mb-2">{t('rewards.title')}</h1>
+          <p className="text-muted-foreground mb-4">{t('rewards.subtitle')}</p>
+          <PointsBadge points={userProfile?.points || 0} size="lg" />
+        </motion.div>
+
         {/* Rewards Grid */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="grid gap-4">
-            {rewards.map((reward, index) => {
-              const Icon = getRewardIcon(reward.name);
-              const canRedeem = userProfile && userProfile.points >= reward.points_cost;
-              const isRedeeming = redeeming === reward.id;
-              
-              return (
-                <motion.div
-                  key={reward.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.1 }}
-                >
-                  <Card className={`loyalty-card border-0 ${!canRedeem ? 'opacity-75' : ''}`}>
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-4">
-                        {reward.image_url ? (
-                          <div className="w-16 h-16 rounded-xl overflow-hidden">
-                            <img 
-                              src={reward.image_url} 
-                              alt={reward.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className={`w-16 h-16 bg-gradient-to-br ${getRewardColor(index)} rounded-xl flex items-center justify-center`}>
-                            <Icon className="w-8 h-8 text-foreground" />
-                          </div>
-                        )}
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-foreground">{reward.name}</h3>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-3">{reward.description || 'Sin descripción'}</p>
+          <div className="space-y-4">
+            {rewards.length === 0 ? (
+              <Card className="floating-card">
+                <CardContent className="p-12 text-center">
+                  <Gift className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="font-semibold mb-2">Próximamente</h3>
+                  <p className="text-sm text-muted-foreground">Los premios estarán disponibles pronto</p>
+                </CardContent>
+              </Card>
+            ) : (
+              rewards.map((reward, index) => {
+                const Icon = getRewardIcon(reward.name);
+                const canRedeem = userProfile && userProfile.points >= reward.points_cost;
+                const isRedeeming = redeeming === reward.id;
+                
+                return (
+                  <motion.div
+                    key={reward.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className={`floating-card ${!canRedeem ? 'opacity-60' : ''}`}>
+                      <CardContent className="p-5">
+                        <div className="flex items-start gap-4">
+                          {reward.image_url ? (
+                            <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
+                              <img 
+                                src={reward.image_url} 
+                                alt={reward.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-20 h-20 rounded-2xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                              <Icon className="w-10 h-10 text-secondary" />
+                            </div>
+                          )}
                           
-                          <div className="flex items-center justify-between">
-                            <PointsBadge points={reward.points_cost} size="sm" animated={false} />
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg mb-1">{reward.name}</h3>
+                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                              {reward.description || 'Sin descripción'}
+                            </p>
                             
-                            <CustomButton
-                              variant={canRedeem ? "premium" : "outline"}
-                              size="sm"
-                              onClick={() => handleRedeem(reward)}
-                              disabled={!canRedeem || isRedeeming}
-                            >
-                              {isRedeeming ? (
-                                <>
-                                  <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                    className="w-3 h-3 border border-white border-t-transparent rounded-full mr-1"
-                                  />
-                                  {t('rewards.redeeming')}
-                                </>
-                              ) : canRedeem ? (
-                                <>
-                                  <Sparkles className="w-3 h-3 mr-1" />
-                                  {t('rewards.redeem')}
-                                </>
-                              ) : (
-                                t('rewards.insufficient')
-                              )}
-                            </CustomButton>
+                            <div className="flex items-center justify-between gap-3">
+                              <PointsBadge points={reward.points_cost} size="sm" animated={false} />
+                              
+                              <Button
+                                className={`rounded-2xl ${canRedeem ? 'bg-accent text-accent-foreground hover:bg-accent/90' : ''}`}
+                                variant={canRedeem ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleRedeem(reward)}
+                                disabled={!canRedeem || isRedeeming}
+                              >
+                                {isRedeeming ? (
+                                  <>
+                                    <motion.div
+                                      animate={{ rotate: 360 }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                      className="w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"
+                                    />
+                                    {t('rewards.redeeming')}
+                                  </>
+                                ) : canRedeem ? (
+                                  <>
+                                    <Sparkles className="w-3 h-3 mr-1" />
+                                    {t('rewards.redeem')}
+                                  </>
+                                ) : (
+                                  t('rewards.insufficient')
+                                )}
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })
+            )}
           </div>
         </motion.section>
 
-        {/* Points Info */}
+        {/* Info Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.3 }}
         >
-          <Card className="loyalty-card border-0 premium-bg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
+          <Card className="floating-card">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-4">
                 <Star className="w-5 h-5 text-secondary" />
-                {t('rewards.howToEarn')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-secondary" />
-                <span className="text-sm text-muted-foreground">{t('rewards.scanCodes')}</span>
+                <h3 className="font-semibold">{t('rewards.howToEarn')}</h3>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-accent" />
-                <span className="text-sm text-muted-foreground">{t('rewards.buyProducts')}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-success" />
-                <span className="text-sm text-muted-foreground">{t('rewards.promotions')}</span>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-secondary">1</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex-1">{t('rewards.scanCodes')}</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-accent">2</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex-1">{t('rewards.buyProducts')}</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-success">3</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex-1">{t('rewards.promotions')}</p>
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -21,7 +21,7 @@ export function BottomNav() {
     <motion.nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border/50 safe-area-pb z-50"
+      className="fixed bottom-0 left-0 right-0 glass-card border-t border-border/30 safe-area-pb z-50"
     >
       <div className="flex items-center justify-around px-4 py-2">
         {navItems.map((item) => {
@@ -37,9 +37,9 @@ export function BottomNav() {
               <motion.div
                 whileTap={{ scale: 0.95 }}
                 className={cn(
-                  "relative p-2 rounded-xl transition-all duration-300",
+                  "relative p-2.5 rounded-2xl transition-all duration-300",
                   isActive 
-                    ? "bg-secondary/20 text-secondary" 
+                    ? "bg-secondary/15 text-secondary" 
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -47,7 +47,7 @@ export function BottomNav() {
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute inset-0 bg-secondary/10 rounded-xl border border-secondary/30"
+                    className="absolute inset-0 bg-secondary/10 rounded-2xl border border-secondary/20"
                     initial={false}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />

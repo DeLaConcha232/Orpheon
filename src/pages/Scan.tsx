@@ -5,10 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQRCamera } from '@/hooks/useQRCamera';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { BottomNav } from '@/components/layout/BottomNav';
-import { CustomButton } from '@/components/ui/custom-button';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { QrCode, Camera, Type, Sparkles, X, RefreshCw } from 'lucide-react';
+import { Camera, Sparkles, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,7 +43,6 @@ export default function Scan() {
   const { sendLocalNotification } = usePushNotifications();
 
   useEffect(() => {
-    // Clean up on unmount
     return () => {
       if (scanIntervalRef.current) {
         clearInterval(scanIntervalRef.current);
@@ -57,7 +56,7 @@ export default function Scan() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background premium-bg">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -68,7 +67,6 @@ export default function Scan() {
   }
 
   const handleScanCode = async (code: string) => {
-    // Enhanced input validation
     const trimmedCode = code.trim().toUpperCase();
     
     if (!trimmedCode) {
@@ -80,7 +78,6 @@ export default function Scan() {
       return;
     }
 
-    // Validate code format - must be at least 5 characters, alphanumeric and dashes only
     if (trimmedCode.length < 5 || !/^[A-Z0-9\-]+$/.test(trimmedCode)) {
       toast({
         title: "Formato inválido",
@@ -90,7 +87,6 @@ export default function Scan() {
       return;
     }
 
-    // Prevent rapid-fire attempts
     if (Date.now() - lastRedemptionAttemptRef.current < 2000) {
       toast({
         title: "Demasiado rápido",
@@ -104,7 +100,6 @@ export default function Scan() {
     setScanning(true);
 
     try {
-      // Use the secure redeem_product_code function
       const { data, error } = await supabase.rpc('redeem_product_code', {
         code_value_input: trimmedCode
       });
@@ -129,14 +124,12 @@ export default function Scan() {
         return;
       }
 
-      // Show success with notification
       toast({
         title: "¡Código canjeado!",
         description: `Ganaste ${result.points_earned} puntos por ${result.product_name}`,
         variant: "default",
       });
 
-      // Send local notification
       sendLocalNotification(
         "¡Puntos ganados!",
         `Ganaste ${result.points_earned} puntos por ${result.product_name}`
@@ -163,13 +156,11 @@ export default function Scan() {
     const dataUrl = await startCamera();
     
     if (dataUrl) {
-      // Process captured image (Capacitor)
       const code = await processImage(dataUrl);
       if (code) {
         await handleScanCode(code);
       }
     } else {
-      // Start continuous scanning (web camera)
       scanIntervalRef.current = setInterval(() => {
         const code = scanQRCode();
         if (code) {
@@ -191,44 +182,42 @@ export default function Scan() {
   };
 
   return (
-    <div className="min-h-screen bg-background premium-bg pb-20">
-      {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="hero-gradient p-6 text-white"
-      >
-        <div className="text-center">
-          <QrCode className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="text-2xl font-heading font-bold">Escanear Código</h1>
-          <p className="text-white/80">Gana puntos por tus productos</p>
-        </div>
-      </motion.header>
-
+    <div className="min-h-screen gradient-subtle pb-24">
       <div className="p-6 space-y-6">
-        {/* QR Camera */}
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-heading font-bold mb-2">Escanear Código</h1>
+          <p className="text-muted-foreground">Gana puntos al instante</p>
+        </motion.div>
+
+        {/* Camera Scanner */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="loyalty-card border-0">
+          <Card className="floating-card overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
+              <CardTitle className="flex items-center gap-2">
                 <Camera className="w-5 h-5 text-secondary" />
                 Escáner de Cámara
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {showCamera ? (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    key="camera"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     className="space-y-4"
                   >
-                    <div className="aspect-square bg-black rounded-xl overflow-hidden relative">
+                    <div className="aspect-square bg-black rounded-2xl overflow-hidden relative">
                       <video
                         ref={videoRef}
                         className="w-full h-full object-cover"
@@ -237,69 +226,53 @@ export default function Scan() {
                       />
                       <canvas ref={canvasRef} className="hidden" />
                       
-                      {/* Scanning overlay */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-48 h-48 border-2 border-secondary rounded-xl">
-                          <div className="w-full h-full relative">
-                            {/* Corner decorations */}
-                            <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-accent"></div>
-                            <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-accent"></div>
-                            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-accent"></div>
-                            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-accent"></div>
-                            
-                            {/* Scanning line */}
-                            <motion.div
-                              animate={{ y: [0, 192, 0] }}
-                              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                              className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent"
-                            />
-                          </div>
+                        <div className="w-48 h-48 border-2 border-secondary/50 rounded-2xl relative">
+                          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-secondary rounded-tl-2xl"></div>
+                          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-secondary rounded-tr-2xl"></div>
+                          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-secondary rounded-bl-2xl"></div>
+                          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-secondary rounded-br-2xl"></div>
+                          
+                          <motion.div
+                            animate={{ y: [0, 192, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent"
+                          />
                         </div>
                       </div>
 
-                      {/* Error message */}
                       {cameraError && (
-                        <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-                          <div className="text-center text-white p-4">
-                            <p className="text-sm">{cameraError}</p>
-                            <CustomButton
-                              variant="outline"
-                              size="sm"
-                              onClick={handleStartCamera}
-                              className="mt-2"
-                            >
-                              <RefreshCw className="w-4 h-4 mr-2" />
-                              Reintentar
-                            </CustomButton>
-                          </div>
+                        <div className="absolute inset-0 bg-black/80 flex items-center justify-center p-6">
+                          <p className="text-white text-center text-sm">{cameraError}</p>
                         </div>
                       )}
                     </div>
                     
-                    <CustomButton
+                    <Button
                       variant="destructive"
-                      className="w-full"
+                      className="w-full rounded-2xl"
                       onClick={handleStopCamera}
                     >
                       <X className="w-4 h-4 mr-2" />
                       Cerrar Cámara
-                    </CustomButton>
+                    </Button>
                   </motion.div>
                 ) : (
                   <motion.div
+                    key="placeholder"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     className="space-y-4"
                   >
-                    <div className="aspect-square bg-gradient-to-br from-secondary/10 to-accent/10 rounded-xl flex items-center justify-center scanner-overlay">
+                    <div className="aspect-square rounded-2xl bg-muted/30 flex items-center justify-center">
                       <div className="text-center">
-                        <QrCode className="w-16 h-16 mx-auto mb-3 text-muted-foreground" />
-                        <p className="text-muted-foreground">Toca para activar la cámara</p>
+                        <Camera className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Toca para activar</p>
                       </div>
                     </div>
-                    <CustomButton
-                      variant="secondary"
-                      className="w-full"
+                    <Button
+                      className="w-full rounded-2xl bg-secondary text-secondary-foreground hover:bg-secondary/90"
                       onClick={handleStartCamera}
                       disabled={isScanning}
                     >
@@ -308,9 +281,9 @@ export default function Scan() {
                           <motion.div
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                            className="w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"
                           />
-                          Iniciando cámara...
+                          Iniciando...
                         </>
                       ) : (
                         <>
@@ -318,7 +291,7 @@ export default function Scan() {
                           Activar Cámara
                         </>
                       )}
-                    </CustomButton>
+                    </Button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -332,30 +305,21 @@ export default function Scan() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="loyalty-card border-0">
+          <Card className="floating-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
-                <Type className="w-5 h-5 text-accent" />
-                Código Manual
-              </CardTitle>
+              <CardTitle>Código Manual</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Input
-                  placeholder="Ingresa tu código (ej: CODE-000001)"
-                  value={manualCode}
-                  onChange={(e) => setManualCode(e.target.value.toUpperCase())}
-                  className="text-center font-mono text-lg tracking-wider"
-                />
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Encuentra el código en el empaque de tu producto
-                </p>
-              </div>
+              <Input
+                placeholder="Ingresa tu código (ej: CODE-000001)"
+                value={manualCode}
+                onChange={(e) => setManualCode(e.target.value.toUpperCase())}
+                className="text-center font-mono text-lg tracking-wider rounded-2xl"
+              />
               
-              <CustomButton
-                variant="premium"
+              <Button
+                className="w-full rounded-2xl bg-accent text-accent-foreground hover:bg-accent/90"
                 size="lg"
-                className="w-full"
                 onClick={() => handleScanCode(manualCode)}
                 disabled={scanning || !manualCode.trim()}
               >
@@ -364,7 +328,7 @@ export default function Scan() {
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                      className="w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"
                     />
                     Procesando...
                   </>
@@ -374,43 +338,7 @@ export default function Scan() {
                     Canjear Código
                   </>
                 )}
-              </CustomButton>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Instructions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="loyalty-card border-0 premium-bg">
-            <CardHeader>
-              <CardTitle className="text-foreground">¿Cómo funciona?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-secondary text-white text-xs flex items-center justify-center font-bold mt-1">1</div>
-                <div>
-                  <p className="font-medium text-foreground">Compra productos Nectar</p>
-                  <p className="text-sm text-muted-foreground">Busca nuestros productos en tiendas</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-bold mt-1">2</div>
-                <div>
-                  <p className="font-medium text-foreground">Encuentra el código</p>
-                  <p className="text-sm text-muted-foreground">Revisa el empaque del producto</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-success text-white text-xs flex items-center justify-center font-bold mt-1">3</div>
-                <div>
-                  <p className="font-medium text-foreground">Escanea y gana</p>
-                  <p className="text-sm text-muted-foreground">Acumula puntos y canjea premios</p>
-                </div>
-              </div>
+              </Button>
             </CardContent>
           </Card>
         </motion.div>

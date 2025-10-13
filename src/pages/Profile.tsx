@@ -163,7 +163,7 @@ export default function Profile() {
 
   if (loading || loadingProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background premium-bg">
+      <div className="min-h-screen flex items-center justify-center gradient-subtle">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -174,35 +174,30 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-background premium-bg pb-20">
-      {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="hero-gradient p-6 text-white"
-      >
-        <div className="text-center">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-10 h-10" />
-          </div>
-          <h1 className="text-2xl font-heading font-bold">{profile?.full_name || t('profile.title')}</h1>
-          <p className="text-white/80">{profile?.email}</p>
-          <div className="mt-4">
-            <PointsBadge points={profile?.points || 0} size="lg" />
-          </div>
-        </div>
-      </motion.header>
-
+    <div className="min-h-screen gradient-subtle pb-24">
       <div className="p-6 space-y-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-6"
+        >
+          <div className="w-24 h-24 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
+            <User className="w-12 h-12 text-secondary" />
+          </div>
+          <h1 className="text-3xl font-heading font-bold mb-1">{profile?.full_name || t('profile.title')}</h1>
+          <p className="text-muted-foreground mb-3">{profile?.email}</p>
+          <PointsBadge points={profile?.points || 0} size="lg" />
+        </motion.div>
         {/* Profile Tabs */}
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
+          <TabsList className="grid w-full grid-cols-2 glass-card p-1">
+            <TabsTrigger value="profile" className="rounded-2xl data-[state=active]:bg-secondary/20">
+              <User className="w-4 h-4 mr-2" />
               {t('nav.profile')}
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
+            <TabsTrigger value="security" className="rounded-2xl data-[state=active]:bg-accent/20">
+              <Shield className="w-4 h-4 mr-2" />
               Seguridad
             </TabsTrigger>
           </TabsList>
@@ -214,9 +209,9 @@ export default function Profile() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="loyalty-card border-0 premium-bg">
+              <Card className="floating-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
+                  <CardTitle className="flex items-center gap-2">
                     <QrCode className="w-5 h-5 text-accent" />
                     Mi Código de Usuario
                   </CardTitle>
@@ -269,10 +264,10 @@ export default function Profile() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
             >
-              <Card className="loyalty-card border-0 premium-bg">
+              <Card className="floating-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Settings className="w-5 h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-secondary" />
                     Tema
                   </CardTitle>
                 </CardHeader>
@@ -312,10 +307,10 @@ export default function Profile() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="loyalty-card border-0 premium-bg">
+              <Card className="floating-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Languages className="w-5 h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2">
+                    <Languages className="w-5 h-5 text-accent" />
                     {t('profile.language')}
                   </CardTitle>
                 </CardHeader>
@@ -349,7 +344,7 @@ export default function Profile() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
             >
-              <Card className="loyalty-card border-0">
+              <Card className="floating-card">
                 <Collapsible open={personalInfoOpen} onOpenChange={setPersonalInfoOpen}>
                   <CollapsibleTrigger asChild>
                     <CardHeader className="cursor-pointer hover:bg-muted/30 transition-colors">
