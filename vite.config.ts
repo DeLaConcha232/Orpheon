@@ -20,10 +20,6 @@ export default defineConfig(({ mode }) => ({
       // Force a single React instance to avoid "Invalid hook call"
       react: path.resolve(__dirname, "node_modules/react"),
       "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
-      "react/jsx-runtime": path.resolve(
-        __dirname,
-        "node_modules/react/jsx-runtime.js"
-      ),
     },
     dedupe: ["react", "react-dom"],
   },
