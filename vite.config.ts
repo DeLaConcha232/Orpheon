@@ -27,13 +27,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     // Optimize bundle size
     target: 'esnext',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.logs in production
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild', // esbuild is faster and included by default
     rollupOptions: {
       output: {
         // Manual chunks for better code splitting
