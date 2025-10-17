@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, QrCode, Gift, History, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -18,11 +17,7 @@ export function BottomNav() {
   const navItems = getNavItems(t);
 
   return (
-    <motion.nav
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 glass-card border-t border-border/30 safe-area-pb z-50"
-    >
+    <nav className="fixed bottom-0 left-0 right-0 glass-card border-t border-border/30 safe-area-pb z-50 animate-slide-up">
       <div className="flex items-center justify-around px-4 py-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -34,10 +29,9 @@ export function BottomNav() {
               to={item.path}
               className="relative flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1"
             >
-              <motion.div
-                whileTap={{ scale: 0.95 }}
+              <div
                 className={cn(
-                  "relative p-2.5 rounded-2xl transition-all duration-300",
+                  "relative p-2.5 rounded-2xl transition-all duration-300 active:scale-95",
                   isActive 
                     ? "bg-secondary/15 text-secondary" 
                     : "text-muted-foreground hover:text-foreground"
@@ -45,14 +39,11 @@ export function BottomNav() {
               >
                 <Icon className="w-5 h-5" />
                 {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute inset-0 bg-secondary/10 rounded-2xl border border-secondary/20"
-                    initial={false}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  <div
+                    className="absolute inset-0 bg-secondary/10 rounded-2xl border border-secondary/20 animate-fade-scale"
                   />
                 )}
-              </motion.div>
+              </div>
               <span 
                 className={cn(
                   "text-xs font-medium mt-1 transition-colors duration-300",
@@ -65,6 +56,6 @@ export function BottomNav() {
           );
         })}
       </div>
-    </motion.nav>
+    </nav>
   );
 }

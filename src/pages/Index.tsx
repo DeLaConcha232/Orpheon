@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PointsBadge } from '@/components/loyalty/PointsBadge';
@@ -61,11 +60,7 @@ const Index = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-subtle">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-secondary border-t-transparent rounded-full"
-        />
+        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -74,11 +69,7 @@ const Index = () => {
     <div className="min-h-screen gradient-subtle pb-24">
       {/* Header */}
       <div className="p-6 pb-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
-        >
+        <div className="flex items-center justify-between mb-8 animate-fade-scale">
           <div>
             <h1 className="text-3xl font-heading font-bold mb-1">
               Hola 👋
@@ -88,50 +79,33 @@ const Index = () => {
             </p>
           </div>
           <PointsBadge points={userPoints} size="lg" />
-        </motion.div>
+        </div>
 
         {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 gap-4 mb-8"
-        >
+        <div className="grid grid-cols-2 gap-4 mb-8 animate-fade-scale">
           <Link to="/scan">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="floating-card p-6 text-center"
-            >
+            <div className="floating-card p-6 text-center transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
               <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-secondary/10 flex items-center justify-center">
                 <QrCode className="w-6 h-6 text-secondary" />
               </div>
               <h3 className="font-semibold mb-1">Escanear</h3>
               <p className="text-xs text-muted-foreground">Gana puntos</p>
-            </motion.div>
+            </div>
           </Link>
           
           <Link to="/rewards">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="floating-card p-6 text-center"
-            >
+            <div className="floating-card p-6 text-center transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
               <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-accent/10 flex items-center justify-center">
                 <Gift className="w-6 h-6 text-accent" />
               </div>
               <h3 className="font-semibold mb-1">Premios</h3>
               <p className="text-xs text-muted-foreground">Canjea ahora</p>
-            </motion.div>
+            </div>
           </Link>
-        </motion.div>
+        </div>
 
         {/* Featured Products */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <section className="animate-fade-scale">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-heading font-semibold">
               Productos Destacados
@@ -142,11 +116,7 @@ const Index = () => {
           <div className="space-y-3">
             {loadingData ? (
               <div className="text-center py-12">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-6 h-6 border-2 border-secondary border-t-transparent rounded-full mx-auto"
-                />
+                <div className="w-6 h-6 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
               </div>
             ) : products.length === 0 ? (
               <Card className="floating-card">
@@ -157,13 +127,8 @@ const Index = () => {
                 </CardContent>
               </Card>
             ) : (
-              products.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
+              products.map((product) => (
+                <div key={product.id} className="animate-fade-scale">
                   <Card className="floating-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4">
@@ -173,6 +138,8 @@ const Index = () => {
                               src={product.image_url} 
                               alt={product.name}
                               className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
@@ -197,19 +164,14 @@ const Index = () => {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               ))
             )}
           </div>
-        </motion.section>
+        </section>
 
         {/* Info Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-6"
-        >
+        <div className="mt-6 animate-fade-scale">
           <Card className="floating-card">
             <CardContent className="p-6">
               <h3 className="font-semibold mb-4">¿Cómo funciona?</h3>
@@ -244,7 +206,7 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
 
       <BottomNav />

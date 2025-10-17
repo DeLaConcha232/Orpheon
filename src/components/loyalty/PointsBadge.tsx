@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -22,30 +21,20 @@ export function PointsBadge({ points, size = 'md', animated = true }: PointsBadg
     lg: 'w-5 h-5'
   };
 
-  const badge = (
-    <div className={`
-      inline-flex items-center gap-2 rounded-full 
-      premium-gradient text-white font-semibold
-      premium-shadow premium-transition
-      ${sizeClasses[size]}
-    `}>
+  return (
+    <div 
+      className={`
+        inline-flex items-center gap-2 rounded-full 
+        bg-gradient-to-r from-secondary to-accent text-white font-semibold
+        shadow-lg transition-all duration-300
+        hover:scale-105 active:scale-95
+        ${sizeClasses[size]}
+        ${animated ? 'animate-fade-scale' : ''}
+      `}
+    >
       <Sparkles className={iconSizes[size]} />
       <span>{points.toLocaleString()}</span>
       <span className="text-xs opacity-90">{t('common.pts')}</span>
     </div>
-  );
-
-  if (!animated) return badge;
-
-  return (
-    <motion.div
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", bounce: 0.3 }}
-    >
-      {badge}
-    </motion.div>
   );
 }
