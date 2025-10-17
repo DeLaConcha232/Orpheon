@@ -232,7 +232,7 @@ export default function Rewards() {
                               {reward.description || "Sin descripción"}
                             </p>
 
-                            <div className="flex items-center justify-between flex-wrap gap-3">
+                            <div className="grid grid-cols-2 gap-3">
                               <PointsBadge points={reward.points_cost} size="sm" animated={false} />
 
                               <Button
