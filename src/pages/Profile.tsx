@@ -44,15 +44,16 @@ export default function Profile() {
   const { toast } = useToast();
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
-
   useEffect(() => {
     if (user) {
       fetchProfile();
     }
   }, [user]);
+
+  // Conditional rendering AFTER all hooks
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const fetchProfile = async () => {
     setLoadingProfile(true);
