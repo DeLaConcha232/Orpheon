@@ -236,7 +236,7 @@ export default function Rewards() {
                               <PointsBadge points={reward.points_cost} size="sm" animated={false} />
 
                               <Button
-                                className={`rounded-2xl ${canRedeem ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}`}
+                                className={`rounded-2xl ${canRedeem ? "bg-accent text-accent-foreground hover:bg-accent/90 truncate" : ""}`}
                                 variant={canRedeem ? "default" : "outline"}
                                 size="sm"
                                 onClick={() => handleRedeem(reward)}
