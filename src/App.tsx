@@ -17,7 +17,8 @@ const Rewards = lazy(() => import("./pages/Rewards"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+ 
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -37,6 +38,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/scan" element={<Scan />} />
                   <Route path="/rewards" element={<Rewards />} />
                   <Route path="/history" element={<History />} />

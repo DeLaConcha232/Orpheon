@@ -99,7 +99,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
 
     if (error) {
       toast({
@@ -110,7 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       toast({
         title: "Email enviado",
-        description: "Revisa tu correo para restablecer tu contraseña.",
+        description: "Revisa tu correo y usa el enlace para restablecer tu contraseña.",
         variant: "default",
       });
     }

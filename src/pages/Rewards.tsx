@@ -34,10 +34,6 @@ export default function Rewards() {
   const [loadingRewards, setLoadingRewards] = useState(true);
   const [redeeming, setRedeeming] = useState<string | null>(null);
 
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
-
   useEffect(() => {
     if (user) {
       fetchUserProfile();
@@ -45,10 +41,66 @@ export default function Rewards() {
     }
   }, [user]);
 
-  const fetchUserProfile = async () => {
-    const { data } = await supabase.from("profiles").select("points").eq("id", user!.id).single();
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
-    setUserProfile(data);
+  const fetchUserProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("points")
+        .eq("id", user!.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+      }
+
+      if (!data) {
+        // Create profile if missing (generate required hex_code on server)
+        const { data: hexData, error: hexError } = await supabase.rpc('generate_hex_code');
+        if (hexError) {
+          console.error("Error generating hex code:", hexError);
+          toast({
+            title: "Error",
+            description: "No se pudo inicializar tu perfil.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { error: insertError } = await supabase.from("profiles").insert({
+          id: user!.id,
+          email: user!.email,
+          full_name: (user!.user_metadata as any)?.full_name || "",
+          hex_code: hexData,
+          points: 0,
+        });
+
+        if (insertError) {
+          console.error("Error creating profile:", insertError);
+          toast({
+            title: "Error",
+            description: "No se pudo crear tu perfil de usuario.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setUserProfile({ points: 0 });
+        return;
+      }
+
+      setUserProfile(data);
+    } catch (err) {
+      console.error("Unexpected error fetching profile:", err);
+      toast({
+        title: "Error",
+        description: "No se pudo cargar tu perfil.",
+        variant: "destructive",
+      });
+    }
   };
 
   const fetchRewards = async () => {
