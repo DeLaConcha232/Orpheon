@@ -210,7 +210,7 @@ export function SecurityMonitor() {
                   key={attempt.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center justify-between flex-wrap p-3 bg-muted/30 rounded-lg"
+                  className="flex items-center justify-between p-3 gap-3 bg-muted/30 rounded-lg"
                 >
                   <div className="flex items-center space-x-3">
                     <div className="font-mono text-sm bg-background px-2 py-1 rounded">{attempt.code_value}</div>
