@@ -233,7 +233,7 @@ export default function Rewards() {
                             </p>
 
                             <div className="grid grid-cols-2 gap-3">
-                              <PointsBadge points={reward.points_cost} size="sm" animated={false} />
+                              {/* <PointsBadge points={reward.points_cost} size="sm" animated={false} /> */}
 
                               <Button
                                 className={`rounded-2xl ${canRedeem ? "bg-accent text-accent-foreground hover:bg-accent/90 truncate" : ""}`}
