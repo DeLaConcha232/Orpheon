@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { BottomNav } from '@/components/layout/BottomNav';
-import { PointsBadge } from '@/components/loyalty/PointsBadge';
-import { Card, CardContent } from '@/components/ui/card';
-import { QrCode, Gift, Package, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { PointsBadge } from "@/components/loyalty/PointsBadge";
+import { Card, CardContent } from "@/components/ui/card";
+import { QrCode, Gift, Package, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Product {
   id: string;
@@ -32,22 +32,18 @@ const Index = () => {
   const fetchData = async () => {
     try {
       const { data: productsData } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
         .limit(3)
-        .order('created_at', { ascending: false });
+        .order("created_at", { ascending: false });
 
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('points')
-        .eq('id', user!.id)
-        .single();
+      const { data: profileData } = await supabase.from("profiles").select("points").eq("id", user!.id).single();
 
       setProducts(productsData || []);
       setUserPoints(profileData?.points || 0);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoadingData(false);
     }
@@ -71,12 +67,8 @@ const Index = () => {
       <div className="p-6 pb-8">
         <div className="flex items-center justify-between mb-8 animate-fade-scale">
           <div>
-            <h1 className="text-3xl font-heading font-bold mb-1">
-              Hola 👋
-            </h1>
-            <p className="text-muted-foreground">
-              {user?.user_metadata?.full_name || 'Usuario'}
-            </p>
+            <h1 className="text-3xl font-heading font-bold mb-1">Hola 👋</h1>
+            <p className="text-muted-foreground">{user?.user_metadata?.full_name || "Usuario"}</p>
           </div>
           <PointsBadge points={userPoints} size="lg" />
         </div>
@@ -92,7 +84,7 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">Gana puntos</p>
             </div>
           </Link>
-          
+
           <Link to="/rewards">
             <div className="floating-card p-6 text-center transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
               <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-accent/10 flex items-center justify-center">
@@ -107,12 +99,10 @@ const Index = () => {
         {/* Featured Products */}
         <section className="animate-fade-scale">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-heading font-semibold">
-              Productos Destacados
-            </h2>
+            <h2 className="text-xl font-heading font-semibold">Productos Destacados</h2>
             <Sparkles className="w-5 h-5 text-secondary" />
           </div>
-          
+
           <div className="space-y-3">
             {loadingData ? (
               <div className="text-center py-12">
@@ -132,10 +122,10 @@ const Index = () => {
                   <Card className="floating-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
+                        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
                           {product.image_url ? (
-                            <img 
-                              src={product.image_url} 
+                            <img
+                              src={product.image_url}
                               alt={product.name}
                               className="w-full h-full object-cover"
                               loading="lazy"
@@ -149,9 +139,7 @@ const Index = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold mb-1 truncate">{product.name}</h3>
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
-                            {product.description}
-                          </p>
+                          <p className="text-sm text-muted-foreground mb-2 line-clamp-1">{product.description}</p>
                           <div className="flex items-center gap-2">
                             <PointsBadge points={product.points_value} size="sm" animated={false} />
                             {product.category && (
