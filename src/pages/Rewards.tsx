@@ -10,6 +10,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Gift, Coffee, ShoppingBag, Crown, Sparkles, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import peanutButterJar from "@/assets/peanut-butter-jar.png";
+import chocolateCookie from "@/assets/chocolate-cookie.png";
+import energyGummies from "@/assets/energy-gummies.png";
 
 interface UserProfile {
   points: number;
@@ -219,6 +222,14 @@ export default function Rewards() {
     return Gift;
   };
 
+  const getRewardImage = (name: string): string | null => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes("cacahuate") || lowerName.includes("peanut")) return peanutButterJar;
+    if (lowerName.includes("galleta") || lowerName.includes("nutella") || lowerName.includes("cookie")) return chocolateCookie;
+    if (lowerName.includes("gomita") || lowerName.includes("gummies") || lowerName.includes("energética")) return energyGummies;
+    return null;
+  };
+
   if (loading || loadingRewards) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-subtle">
@@ -268,9 +279,13 @@ export default function Rewards() {
                     <Card className={`floating-card ${!canRedeem ? "opacity-60" : ""}`}>
                       <CardContent className="p-5">
                         <div className="flex items-start gap-4">
-                          {reward.image_url ? (
+                          {reward.image_url || getRewardImage(reward.name) ? (
                             <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
-                              <img src={reward.image_url} alt={reward.name} className="w-full h-full object-cover" />
+                              <img 
+                                src={reward.image_url || getRewardImage(reward.name)!} 
+                                alt={reward.name} 
+                                className="w-full h-full object-cover" 
+                              />
                             </div>
                           ) : (
                             <div className="w-20 h-20 rounded-2xl bg-secondary/10 flex items-center justify-center flex-shrink-0">

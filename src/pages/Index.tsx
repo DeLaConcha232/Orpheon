@@ -7,6 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { QrCode, Gift, Package, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import peanutButterJar from "@/assets/peanut-butter-jar.png";
+import chocolateCookie from "@/assets/chocolate-cookie.png";
+import energyGummies from "@/assets/energy-gummies.png";
 
 interface Product {
   id: string;
@@ -16,6 +19,14 @@ interface Product {
   image_url: string;
   category: string;
 }
+
+const getProductIcon = (name: string): string | null => {
+  const lowerName = name.toLowerCase();
+  if (lowerName.includes("cacahuate") || lowerName.includes("peanut")) return peanutButterJar;
+  if (lowerName.includes("galleta") || lowerName.includes("nutella") || lowerName.includes("cookie")) return chocolateCookie;
+  if (lowerName.includes("gomita") || lowerName.includes("gummies") || lowerName.includes("energética")) return energyGummies;
+  return null;
+};
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -123,9 +134,9 @@ const Index = () => {
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
-                          {product.image_url ? (
+                          {product.image_url || getProductIcon(product.name) ? (
                             <img
-                              src={product.image_url}
+                              src={product.image_url || getProductIcon(product.name)!}
                               alt={product.name}
                               className="w-full h-full object-cover"
                               loading="lazy"
