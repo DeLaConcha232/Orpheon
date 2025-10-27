@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { PWAInstall } from '@/components/ui/PWAInstall';
+import Logotipo from "/Logotipo.png"
 
 export default function Auth() {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
@@ -35,10 +36,11 @@ export default function Auth() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-center mb-8"
+          className="text-center mb-8 flex flex-col items-center justify-center"
         >
+          <img src={Logotipo} alt="Logotipo" className="w-40 h-auto"/>
           <h1 className="text-4xl font-heading font-bold text-gradient mb-2">
-            Nectar Loyalty
+            Orpheon
           </h1>
           <p className="text-muted-foreground">
             Tu programa de lealtad

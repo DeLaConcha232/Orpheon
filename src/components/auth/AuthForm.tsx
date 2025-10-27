@@ -91,7 +91,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
 
   const getDescription = () => {
     switch (mode) {
-      case 'signin': return 'Accede a tu cuenta de Nectar Loyalty';
+      case 'signin': return 'Accede a tu cuenta de Orpheon';
       case 'signup': return 'Únete a nuestro programa de lealtad premium';
       case 'forgot': return 'Te enviaremos un enlace para restablecer tu contraseña';
     }

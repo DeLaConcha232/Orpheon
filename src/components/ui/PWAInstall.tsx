@@ -103,7 +103,7 @@ export function PWAInstall() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    Instala la app Nectar Loyalty para una mejor experiencia:
+                    Instala la app Orpheon para una mejor experiencia:
                   </p>
                   
                   <div className="space-y-3">
