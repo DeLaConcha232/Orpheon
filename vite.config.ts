@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => ({
     // Optimize bundle size
     target: 'esnext',
     minify: 'esbuild', // esbuild is faster and included by default
+    sourcemap: false, // Disable sourcemaps in production for smaller bundle
     rollupOptions: {
       output: {
         // Manual chunks for better code splitting
