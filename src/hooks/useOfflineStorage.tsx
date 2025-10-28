@@ -30,9 +30,23 @@ export const useOfflineStorage = () => {
 
   const loadOfflineData = () => {
     try {
-      const stored = localStorage.getItem('nectar-offline-data');
-      if (stored) {
-        setOfflineData(JSON.parse(stored));
+      // Prefer the new Orpheon key; migrate from old Nectar key if present
+      const newKey = 'orpheon-offline-data';
+      const oldKey = 'nectar-offline-data';
+
+      const storedNew = localStorage.getItem(newKey);
+      if (storedNew) {
+        setOfflineData(JSON.parse(storedNew));
+        return;
+      }
+
+      const storedOld = localStorage.getItem(oldKey);
+      if (storedOld) {
+        const data = JSON.parse(storedOld);
+        setOfflineData(data);
+        // migrate to new key and remove old one
+        localStorage.setItem(newKey, JSON.stringify(data));
+        localStorage.removeItem(oldKey);
       }
     } catch (error) {
       console.error('Error loading offline data:', error);
@@ -48,7 +62,7 @@ export const useOfflineStorage = () => {
         lastUpdated: Date.now()
       };
       
-      localStorage.setItem('nectar-offline-data', JSON.stringify(updated));
+      localStorage.setItem('orpheon-offline-data', JSON.stringify(updated));
       setOfflineData(updated);
     } catch (error) {
       console.error('Error saving offline data:', error);
@@ -56,6 +70,7 @@ export const useOfflineStorage = () => {
   };
 
   const clearOfflineData = () => {
+    localStorage.removeItem('orpheon-offline-data');
     localStorage.removeItem('nectar-offline-data');
     setOfflineData(null);
   };

@@ -1,7 +1,7 @@
 {
-  "name": "Nectar Loyalty",
-  "short_name": "Nectar",
-  "description": "Sistema de lealtad Nectar - Gana puntos y canjea premios",
+  "name": "Orpheon",
+  "short_name": "Orpheon",
+  "description": "Sistema de lealtad Orpheon - Gana puntos y canjea premios",
   "start_url": "/", 
   "display": "standalone",
   "background_color": "#0f172a",

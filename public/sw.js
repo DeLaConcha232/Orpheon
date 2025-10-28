@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nectar-v3';
+const CACHE_NAME = 'orpheon-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -132,7 +132,7 @@ self.addEventListener('fetch', (event) => {
 // Push notification event
 self.addEventListener('push', (event) => {
   const options = {
-    body: event.data ? event.data.text() : 'Nueva notificación de Nectar',
+    body: event.data ? event.data.text() : 'Nueva notificación de Orpheon',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     vibrate: [100, 50, 100],
@@ -142,7 +142,7 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('Nectar Loyalty', options)
+    self.registration.showNotification('Orpheon', options)
   );
 });
 

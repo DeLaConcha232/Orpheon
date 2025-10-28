@@ -41,7 +41,7 @@ export const usePushNotifications = () => {
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
         toast({
           title: notification.title || "Nueva notificación",
-          description: notification.body || "Tienes una nueva notificación de Nectar",
+          description: notification.body || "Tienes una nueva notificación de Orpheon",
         });
       });
 

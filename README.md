@@ -1,73 +1,30 @@
-# Welcome to your Lovable project
+## Orpheon Loyalty System
 
-## Project info
+PWA para el sistema de lealtad Orpheon: escaneo QR, acumulación/canje de puntos, historial, perfil y más. Stack: Vite + React + TypeScript + Tailwind + shadcn-ui + Supabase.
 
-**URL**: https://lovable.dev/projects/198dcdbb-d430-46e7-96fe-99e404f6715c
+### Requisitos
+- Node.js LTS y npm
 
-## How can I edit this code?
+### Scripts
+- dev: entorno de desarrollo
+- build: build de producción
+- preview: vista previa del build
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/198dcdbb-d430-46e7-96fe-99e404f6715c) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+### Desarrollo
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### PWA
+- Manifesto: `public/manifest.json`
+- Service Worker: `public/sw.js`
+- Iconos: `public/icon-192.png` y `public/icon-512.png`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### SEO y Social
+- Edita `index.html` para título, descripción, Open Graph y Twitter Cards
+- Cuando tengas dominio propio, actualiza las etiquetas `canonical`, `og:url` y `twitter:url`
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/198dcdbb-d430-46e7-96fe-99e404f6715c) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Despliegue
+- Compatible con Vercel u otros hostings estáticos
+- Configura variables de entorno de Supabase
