@@ -78,7 +78,7 @@ export default function Scan() {
       return;
     }
 
-    if (trimmedCode.length < 5 || !/^[A-Z0-9\-]+$/.test(trimmedCode)) {
+  if (trimmedCode.length < 5 || !/^[A-Z0-9-]+$/.test(trimmedCode)) {
       toast({
         title: "Formato inválido",
         description: "El código debe contener solo letras, números y guiones",

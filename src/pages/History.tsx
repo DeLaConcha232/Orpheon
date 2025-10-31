@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -36,15 +36,45 @@ export default function History() {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
+  const fetchHistory = useCallback(async () => {
+    if (!user) return;
+    setLoadingData(true);
+    
+    try {
+      const { data: redemptionsData } = await supabase
+        .from('user_redemptions')
+        .select(`
+          id,
+          points_earned,
+          redeemed_at,
+          product_codes!inner(
+            code_value,
+            products!inner(name, category)
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('redeemed_at', { ascending: false });
+
+      const { data: rewardsData } = await supabase
+        .from('redeemed_rewards')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('redeemed_at', { ascending: false });
+
+      setRedemptions(redemptionsData || []);
+      setRewards(rewardsData || []);
+    } catch (error) {
+      console.error('Error fetching history:', error);
+    } finally {
+      setLoadingData(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
       fetchHistory();
     }
-  }, [user]);
+  }, [user, fetchHistory]);
 
   useEffect(() => {
     if (!user) return;
@@ -80,38 +110,11 @@ export default function History() {
     };
   }, [user]);
 
-  const fetchHistory = async () => {
-    setLoadingData(true);
-    
-    try {
-      const { data: redemptionsData } = await supabase
-        .from('user_redemptions')
-        .select(`
-          id,
-          points_earned,
-          redeemed_at,
-          product_codes!inner(
-            code_value,
-            products!inner(name, category)
-          )
-        `)
-        .eq('user_id', user!.id)
-        .order('redeemed_at', { ascending: false });
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
-      const { data: rewardsData } = await supabase
-        .from('redeemed_rewards')
-        .select('*')
-        .eq('user_id', user!.id)
-        .order('redeemed_at', { ascending: false });
-
-      setRedemptions(redemptionsData || []);
-      setRewards(rewardsData || []);
-    } catch (error) {
-      console.error('Error fetching history:', error);
-    } finally {
-      setLoadingData(false);
-    }
-  };
+  
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {

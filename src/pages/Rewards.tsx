@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,18 +37,11 @@ export default function Rewards() {
   const [loadingRewards, setLoadingRewards] = useState(true);
   const [redeeming, setRedeeming] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserProfile();
-      fetchRewards();
-    }
-  }, [user]);
+  // Effect will be defined after functions below to include them in deps
 
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
+  // Redirect check will occur after hooks are declared to satisfy hooks rules
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -76,7 +69,7 @@ export default function Rewards() {
         const { error: insertError } = await supabase.from("profiles").insert({
           id: user!.id,
           email: user!.email,
-          full_name: (user!.user_metadata as any)?.full_name || "",
+          full_name: (user!.user_metadata as { full_name?: string } | null)?.full_name || "",
           hex_code: hexData,
           points: 0,
         });
@@ -104,9 +97,9 @@ export default function Rewards() {
         variant: "destructive",
       });
     }
-  };
+  }, [user]);
 
-  const fetchRewards = async () => {
+  const fetchRewards = useCallback(async () => {
     setLoadingRewards(true);
 
     try {
@@ -137,7 +130,18 @@ export default function Rewards() {
     } finally {
       setLoadingRewards(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+      fetchRewards();
+    }
+  }, [user, fetchUserProfile, fetchRewards]);
+
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const handleRedeem = async (reward: RewardType) => {
     if (!userProfile || userProfile.points < reward.points_cost) {
@@ -178,7 +182,7 @@ export default function Rewards() {
         return;
       }
 
-      const { error: updateError } = await supabase
+          const { error: updateError } = await supabase
         .from("profiles")
         .update({
           points: userProfile.points - reward.points_cost,

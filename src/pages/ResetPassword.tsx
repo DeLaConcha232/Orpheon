@@ -50,8 +50,9 @@ export default function ResetPassword() {
       toast({ title: "Contraseña actualizada", description: "Inicia sesión con tu nueva contraseña." });
       await supabase.auth.signOut();
       navigate("/");
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message || "No se pudo actualizar la contraseña.", variant: "destructive" });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "No se pudo actualizar la contraseña.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }

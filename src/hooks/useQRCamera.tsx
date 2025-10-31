@@ -14,8 +14,9 @@ export const useQRCamera = () => {
       setIsScanning(true);
       setError(null);
 
-      // Try Capacitor Camera first (for mobile)
-      if ((window as any).Capacitor?.isNativePlatform()) {
+  // Try Capacitor Camera first (for mobile)
+  const isNative = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
+  if (isNative) {
         const image = await Camera.getPhoto({
           quality: 90,
           allowEditing: false,

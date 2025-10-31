@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,13 +34,7 @@ export function SecurityMonitor() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      fetchRedemptionAttempts();
-    }
-  }, [user]);
-
-  const fetchRedemptionAttempts = async () => {
+  const fetchRedemptionAttempts = useCallback(async () => {
     try {
       // Fetch user's redemption attempts (last 50)
       const { data: attemptsData, error: attemptsError } = await supabase
@@ -79,7 +73,13 @@ export function SecurityMonitor() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchRedemptionAttempts();
+    }
+  }, [user, fetchRedemptionAttempts]);
 
   const getAttemptBadge = (attemptType: string) => {
     switch (attemptType) {

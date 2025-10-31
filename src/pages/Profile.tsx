@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings, Shield, QrCode, Hash, ChevronDown, Copy, Languages, Globe, Moon, Sun } from 'lucide-react';
+import { User, Edit, LogOut, Mail, Phone, Calendar, Award, Settings, Shield, QrCode, Hash, ChevronDown, Copy, Languages, Globe, Moon, Sun, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SecurityMonitor } from '@/components/security/SecurityMonitor';
@@ -44,25 +44,16 @@ export default function Profile() {
   const { toast } = useToast();
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchProfile();
-    }
-  }, [user]);
-
-  // Conditional rendering AFTER all hooks
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     setLoadingProfile(true);
     
     try {
+      if (!user?.id) return;
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user!.id)
+        .eq('id', user.id)
         .single();
 
       if (error) throw error;
@@ -82,7 +73,18 @@ export default function Profile() {
     } finally {
       setLoadingProfile(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user, fetchProfile]);
+
+  // Conditional rendering AFTER all hooks
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const generateQRCode = async (hexCode: string) => {
     try {
@@ -497,6 +499,7 @@ export default function Profile() {
                 <LogOut className="w-4 h-4 mr-2" />
                 Cerrar Sesión
               </CustomButton>
+              <a href='https://www.avskallet.com/' className='mt-4 text-center text-sm text-blue-300 flex justify-center items-center cursor-pointer'>Hecho con <Heart className="inline-block w-4 h-4 mx-1" /> por av-skallet solutions</a>
             </motion.section>
           </TabsContent>
 

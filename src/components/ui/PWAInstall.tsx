@@ -9,12 +9,12 @@ export function PWAInstall() {
   const [selectedPlatform, setSelectedPlatform] = useState<'ios' | 'android' | 'desktop'>('ios');
 
   const platforms = [
-    { id: 'ios', name: 'iOS', icon: Apple },
-    { id: 'android', name: 'Android', icon: Smartphone },
-    { id: 'desktop', name: 'Desktop', icon: Globe }
+    { id: 'ios' as const, name: 'iOS', icon: Apple },
+    { id: 'android' as const, name: 'Android', icon: Smartphone },
+    { id: 'desktop' as const, name: 'Desktop', icon: Globe }
   ];
 
-  const instructions = {
+  const instructions: Record<typeof platforms[number]['id'], string[]> = {
     ios: [
       'Abre esta página en Safari',
       'Toca el botón "Compartir" (cuadrado con flecha)',
@@ -48,7 +48,7 @@ export function PWAInstall() {
           return (
             <motion.button
               key={platform.id}
-              onClick={() => handlePlatformSelect(platform.id as any)}
+              onClick={() => handlePlatformSelect(platform.id)}
               className="w-12 h-12 bg-card/80 backdrop-blur-sm hover:bg-card border border-border rounded-full flex items-center justify-center shadow-lg transition-colors duration-300"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}

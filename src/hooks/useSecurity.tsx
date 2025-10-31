@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -25,13 +25,7 @@ export function useSecurity() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      fetchSecurityMetrics();
-    }
-  }, [user]);
-
-  const fetchSecurityMetrics = async () => {
+  const fetchSecurityMetrics = useCallback(async () => {
     try {
       if (!user) return;
 
@@ -74,7 +68,13 @@ export function useSecurity() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSecurityMetrics();
+    }
+  }, [user, fetchSecurityMetrics]);
 
   const checkRateLimit = async (): Promise<boolean> => {
     if (!user) return false;

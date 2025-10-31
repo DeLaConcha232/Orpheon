@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -34,13 +34,7 @@ const Index = () => {
   const [userPoints, setUserPoints] = useState(0);
   const [loadingData, setLoadingData] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const { data: productsData } = await supabase
         .from("products")
@@ -49,7 +43,17 @@ const Index = () => {
         .limit(3)
         .order("created_at", { ascending: false });
 
-      const { data: profileData } = await supabase.from("profiles").select("points").eq("id", user!.id).single();
+      if (!user?.id) {
+        setProducts(productsData || []);
+        setUserPoints(0);
+        return;
+      }
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("points")
+        .eq("id", user.id)
+        .single();
 
       setProducts(productsData || []);
       setUserPoints(profileData?.points || 0);
@@ -58,7 +62,13 @@ const Index = () => {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [user, fetchData]);
 
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;

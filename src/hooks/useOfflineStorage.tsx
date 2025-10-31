@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
 interface OfflineData {
-  userProfile: any;
-  rewards: any[];
-  history: any[];
+  userProfile: unknown;
+  rewards: unknown[];
+  history: unknown[];
   lastUpdated: number;
 }
 

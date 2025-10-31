@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useToast } from '@/hooks/use-toast';
 
@@ -6,11 +6,7 @@ export const usePushNotifications = () => {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    initializePushNotifications();
-  }, []);
-
-  const initializePushNotifications = async () => {
+  const initializePushNotifications = useCallback(async () => {
     // Request permission for push notifications
     const permissionResult = await PushNotifications.requestPermissions();
     
@@ -23,8 +19,6 @@ export const usePushNotifications = () => {
       // On success, we should be able to receive notifications
       PushNotifications.addListener('registration', (token) => {
         console.log('Push registration success, token: ', token.value);
-        // Here you would typically send the token to your backend
-        // to associate it with the user for sending targeted notifications
       });
 
       // Some issue with your setup and push will not work
@@ -48,7 +42,6 @@ export const usePushNotifications = () => {
       // Method called when tapping on a notification
       PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
         console.log('Push notification action performed', notification);
-        // Handle notification tap - navigate to specific screen if needed
       });
     } else {
       console.log('Push notification permissions denied');
@@ -58,7 +51,11 @@ export const usePushNotifications = () => {
         variant: "default",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    initializePushNotifications();
+  }, [initializePushNotifications]);
 
   const sendLocalNotification = (title: string, body: string) => {
     if ('serviceWorker' in navigator && 'Notification' in window) {
